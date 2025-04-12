@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id        Int        @id @default(autoincrement())
+  fullName  String
+  email     String
+  phone     String     @unique
+  regionId  Int
+  password  String
+  role      Role       @default(USER_FIZ)
+  companyId Int?
+  img       String?
+  status    UserStatus @default(INACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  company CompanyInformation? @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  region  Regions             @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model CompanyInformation {
+  id     Int    @id @default(autoincrement())
+  INN    String
+  MFO    String
+  R_S    String
+  BANK   String
+  OKEYD  String
+  ADRESS String
+
+  user Users[]
+}
+
+model Regions {
+  id      Int    @id @default(autoincrement())
+  name_uz String
+  name_ru String
+  name_en String
+
+  user Users[]
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+  VIEWER_ADMIN
+  USER_FIZ
+  USER_YUR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
