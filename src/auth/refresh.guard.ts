@@ -8,20 +8,22 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  private accsecret = process.env.ACCKEY || "access_secret";
+export class RefreshGuard implements CanActivate {
+  private refsecret = process.env.REFKEY || "refresh_secrest";
   constructor(private jwtService: JwtService) {}
 
   canActivate(context: ExecutionContext): boolean {
     let request: Request = context.switchToHttp().getRequest();
-    let token = request.headers.authorization?.split(' ')[1];
- 
-    if (!token) {
+    let { refreshToken } = request.body;
+
+    if (!refreshToken) {
       throw new UnauthorizedException('Unauthorized');
     }
 
     try {
-      let data = this.jwtService.verify(token, { secret: this.accsecret });
+      let data = this.jwtService.verify(refreshToken, {
+        secret: this.refsecret,
+      });
       request['user'] = data;
       return true;
     } catch (error) {
