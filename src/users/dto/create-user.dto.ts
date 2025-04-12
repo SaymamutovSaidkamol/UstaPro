@@ -61,3 +61,21 @@ export class VerifyDto {
   @IsString()
   otp: string;
 }
+  
+export class sendOtpDto {
+  @ApiProperty({ example: '+998943861006' })
+  @IsString()
+  phone: string;
+}
+  
+export class resetPasswordDto {
+  @ApiProperty({ example: '+998943861006' })
+  @IsString()
+  phone: string;
+  @ApiProperty({ example: '1234' })
+  @IsString()
+  password: string;
+  @ApiProperty({ example: '234234234' })
+  @IsString()
+  otp: string;
+}

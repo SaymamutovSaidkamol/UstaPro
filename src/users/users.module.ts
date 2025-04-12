@@ -9,14 +9,7 @@ import { EskizService } from 'src/eskiz/eskiz.service';
 @Module({
   controllers: [UsersController],
   providers: [UsersService, EskizService],
-  imports: [
-    MailModule,
-    JwtModule.register({
-      global: true,
-      secret: 'access_key',
-      signOptions: { expiresIn: '20h' },
-    }),
-  ],
+  imports: [MailModule, JwtModule.register({ global: true })],
   exports: [JwtModule],
 })
 export class UsersModule {}

@@ -45,6 +45,17 @@ CREATE TABLE "Regions" (
     CONSTRAINT "Regions_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "IpAdress" TEXT NOT NULL,
+    "info" JSONB NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Users_phone_key" ON "Users"("phone");
 
@@ -53,3 +64,6 @@ ALTER TABLE "Users" ADD CONSTRAINT "Users_companyId_fkey" FOREIGN KEY ("companyI
 
 -- AddForeignKey
 ALTER TABLE "Users" ADD CONSTRAINT "Users_regionId_fkey" FOREIGN KEY ("regionId") REFERENCES "Regions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
