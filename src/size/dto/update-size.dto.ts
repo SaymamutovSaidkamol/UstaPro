@@ -1,19 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-export class CreateLevelDto {
+export class UpdateSizeDto  {
   @ApiProperty({ example: 'Yosh mutaxassi' })
   @IsString()
-  name_uz: string;
+  name_uz?: string;
 
   @ApiProperty({ example: 'Младший специалист' })
   @IsString()
-  name_ru: string;
+  name_ru?: string;
 
   @ApiProperty({ example: 'Junior' })
   @IsString()
-  name_en: string;
+  name_en?: string;
 
   @IsOptional()
-  createdAt?: Date = new Date();
+  updatedAt?: Date = new Date();
 }

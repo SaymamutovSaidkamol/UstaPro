@@ -12,6 +12,9 @@ import { EskizService } from './eskiz/eskiz.service';
 import { MasterModule } from './master/master.module';
 import { ProfessionModule } from './profession/profession.module';
 import { LevelModule } from './level/level.module';
+import { BrandModule } from './brand/brand.module';
+import { PowerModule } from './power/power.module';
+import { SizeModule } from './size/size.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { LevelModule } from './level/level.module';
     MasterModule,
     ProfessionModule,
     LevelModule,
+    BrandModule,
+    PowerModule,
+    SizeModule,
     
   ],
   controllers: [AppController],

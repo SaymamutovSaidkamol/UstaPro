@@ -1,10 +1,10 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
-import { CreateLevelDto } from './dto/create-level.dto';
-import { UpdateLevelDto } from './dto/update-level.dto';
+import { CreateSizeDto } from './dto/create-size.dto';
+import { UpdateSizeDto } from './dto/update-size.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class LevelService {
+export class SizeService {
   constructor(private readonly prisma: PrismaService) {}
 
   private Error(error: any): never {
@@ -14,19 +14,19 @@ export class LevelService {
     throw new BadRequestException(error.message);
   }
 
-  async create(data: CreateLevelDto) {
+  async create(data: CreateSizeDto) {
     try {
-      let checkLevel = await this.prisma.level.findFirst({
+      let checksize = await this.prisma.size.findFirst({
         where: { name_uz: data.name_uz },
       });
 
-      if (checkLevel) {
-        throw new BadRequestException('This Level alredy exist');
+      if (checksize) {
+        throw new BadRequestException('This size alredy exist');
       }
 
       return {
-        message: 'Level added succuessfully',
-        data: await this.prisma.level.create({ data }),
+        message: 'size added succuessfully',
+        data: await this.prisma.size.create({ data }),
       };
     } catch (error) {
       this.Error(error);
@@ -35,7 +35,7 @@ export class LevelService {
 
   async findAll() {
     try {
-      return { data: await this.prisma.level.findMany() };
+      return { data: await this.prisma.size.findMany() };
     } catch (error) {
       this.Error(error);
     }
@@ -43,32 +43,32 @@ export class LevelService {
 
   async findOne(id: number) {
     try {
-      let checkLevel = await this.prisma.level.findFirst({
+      let checksize = await this.prisma.size.findFirst({
         where: { id },
       });
 
-      if (!checkLevel) {
-        throw new BadRequestException('Level Not Found');
+      if (!checksize) {
+        throw new BadRequestException('size Not Found');
       }
 
-      return { data: checkLevel };
+      return { data: checksize };
     } catch (error) {
       this.Error(error);
     }
   }
 
-  async update(id: number, data: UpdateLevelDto) {
+  async update(id: number, data: UpdateSizeDto) {
     try {
-      let checkLevel = await this.prisma.level.findFirst({
+      let checksize = await this.prisma.size.findFirst({
         where: { id },
       });
 
-      if (!checkLevel) {
-        throw new BadRequestException('Level Not Found');
+      if (!checksize) {
+        throw new BadRequestException('size Not Found');
       }
 
       if (data.name_en && data.name_ru && data.name_uz) {
-        let checkProff = await this.prisma.level.findFirst({
+        let checkProff = await this.prisma.size.findFirst({
           where: { name_uz: data.name_uz },
         });
 
@@ -87,8 +87,8 @@ export class LevelService {
       }
 
       return {
-        message: 'Level changet successfully',
-        data: await this.prisma.level.update({ where: { id }, data }),
+        message: 'size changet successfully',
+        data: await this.prisma.size.update({ where: { id }, data }),
       };
     } catch (error) {
       this.Error(error);
@@ -97,16 +97,16 @@ export class LevelService {
 
   async remove(id: number) {
     try {
-      let checkLevel = await this.prisma.level.findFirst({
+      let checksize = await this.prisma.size.findFirst({
         where: { id },
       });
 
-      if (!checkLevel) {
-        throw new BadRequestException('Level Not Found');
+      if (!checksize) {
+        throw new BadRequestException('size Not Found');
       }
       return {
-        message: 'Level deleted successfully',
-        data: await this.prisma.level.delete({ where: { id } }),
+        message: 'size deleted successfully',
+        data: await this.prisma.size.delete({ where: { id } }),
       };
     } catch (error) {
       this.Error(error);
