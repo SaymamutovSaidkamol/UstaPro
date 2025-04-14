@@ -26,7 +26,7 @@ import * as DeviceDetector from 'device-detector-js';
 totp.options = { step: 120 };
 
 @Injectable()
-export class UsersService {
+export class UsersService { 
   private readonly deviceDetector = new DeviceDetector();
 
   constructor(
@@ -82,9 +82,8 @@ export class UsersService {
     //   `new Otp:  ${otp}`,
     // );
 
-    // await this.eskiz.sendSMS('Send SMS', data.phone);    Eskizdan SMS jo'natish
-
-    let newUser = await this.prisma.users.create({ data });
+    // await this.eskiz.sendSMS('Send SMS', data.phone);  
+    // let newUser = await this.prisma.users.create({ data });
 
     return {
       message: 'Registration created successfully. Please verify your account.',
