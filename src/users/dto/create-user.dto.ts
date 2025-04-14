@@ -61,13 +61,13 @@ export class VerifyDto {
   @IsString()
   otp: string;
 }
-  
+
 export class sendOtpDto {
   @ApiProperty({ example: '+998943861006' })
   @IsString()
   phone: string;
 }
-  
+
 export class resetPasswordDto {
   @ApiProperty({ example: '+998943861006' })
   @IsString()
@@ -78,4 +78,13 @@ export class resetPasswordDto {
   @ApiProperty({ example: '234234234' })
   @IsString()
   otp: string;
+}
+
+export function isValidPassword(password: string): boolean {
+  const minLength = 6;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSymbol = /[^A-Za-z0-9]/.test(password);
+
+  return password.length >= minLength && hasUpperCase && hasNumber && hasSymbol;
 }

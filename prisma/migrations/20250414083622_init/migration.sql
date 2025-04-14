@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'SUPER_ADMIN', 'VIEWER_ADMIN', 'USER_FIZ', 'USER_YUR');
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'SUPER_ADMIN', 'VIEWER_ADMIN', 'USER_FIZ', 'USER_YUR', 'MASTER');
 
 -- CreateEnum
 CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE');
@@ -23,7 +23,7 @@ CREATE TABLE "Users" (
     "password" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER_FIZ',
     "companyId" INTEGER,
-    "img" TEXT,
+    "img" TEXT NOT NULL,
     "status" "UserStatus" NOT NULL DEFAULT 'INACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -118,8 +118,10 @@ CREATE TABLE "OrderTool" (
 -- CreateTable
 CREATE TABLE "Comment" (
     "id" SERIAL NOT NULL,
-    "message" TEXT NOT NULL,
-    "stars" JSONB NOT NULL,
+    "message_uz" TEXT NOT NULL,
+    "message_ru" TEXT NOT NULL,
+    "message_en" TEXT NOT NULL,
+    "stars" DOUBLE PRECISION NOT NULL,
     "orderId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -130,9 +132,9 @@ CREATE TABLE "Comment" (
 -- CreateTable
 CREATE TABLE "Brand" (
     "id" SERIAL NOT NULL,
-    "nameUz" TEXT NOT NULL,
-    "nameRu" TEXT,
-    "nameEn" TEXT,
+    "name_uz" TEXT NOT NULL,
+    "name_ru" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -142,9 +144,9 @@ CREATE TABLE "Brand" (
 -- CreateTable
 CREATE TABLE "Size" (
     "id" SERIAL NOT NULL,
-    "nameUz" TEXT NOT NULL,
-    "nameRu" TEXT,
-    "nameEn" TEXT,
+    "name_uz" TEXT NOT NULL,
+    "name_ru" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -154,9 +156,9 @@ CREATE TABLE "Size" (
 -- CreateTable
 CREATE TABLE "Power" (
     "id" SERIAL NOT NULL,
-    "nameUz" TEXT NOT NULL,
-    "nameRu" TEXT,
-    "nameEn" TEXT,
+    "name_uz" TEXT NOT NULL,
+    "name_ru" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -166,18 +168,18 @@ CREATE TABLE "Power" (
 -- CreateTable
 CREATE TABLE "Tool" (
     "id" SERIAL NOT NULL,
-    "nameUz" TEXT NOT NULL,
-    "nameRu" TEXT,
-    "nameEn" TEXT,
-    "descriptionUz" TEXT NOT NULL,
-    "descriptionRu" TEXT,
-    "descriptionEn" TEXT,
-    "price" DECIMAL(65,30) NOT NULL,
+    "name_uz" TEXT NOT NULL,
+    "name_ru" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
+    "description_uz" TEXT NOT NULL,
+    "description_ru" TEXT NOT NULL,
+    "description_en" TEXT NOT NULL,
+    "price" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "code" INTEGER NOT NULL,
-    "brandId" INTEGER,
-    "powerId" INTEGER,
-    "sizeId" INTEGER,
+    "brandId" INTEGER NOT NULL,
+    "powerId" INTEGER NOT NULL,
+    "sizeId" INTEGER NOT NULL,
     "img" TEXT NOT NULL,
     "isAvailable" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -192,10 +194,11 @@ CREATE TABLE "Master" (
     "fullName" TEXT NOT NULL,
     "phoneNumber" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "birthYear" INTEGER NOT NULL,
+    "birthYear" TEXT NOT NULL,
     "img" TEXT NOT NULL,
     "passportImg" TEXT NOT NULL,
     "about" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -205,13 +208,13 @@ CREATE TABLE "Master" (
 -- CreateTable
 CREATE TABLE "MasterProfession" (
     "id" SERIAL NOT NULL,
-    "professionId" INTEGER,
-    "minWorkingHours" DOUBLE PRECISION,
-    "levelId" INTEGER,
-    "priceHourly" DECIMAL(65,30) NOT NULL,
-    "priceDaily" DECIMAL(65,30) NOT NULL,
+    "professionId" INTEGER NOT NULL,
+    "minWorkingHours" DOUBLE PRECISION NOT NULL,
+    "levelId" INTEGER NOT NULL,
+    "priceHourly" TEXT NOT NULL,
+    "priceDaily" TEXT NOT NULL,
     "experience" DOUBLE PRECISION NOT NULL,
-    "masterId" INTEGER,
+    "masterId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -221,9 +224,9 @@ CREATE TABLE "MasterProfession" (
 -- CreateTable
 CREATE TABLE "Level" (
     "id" SERIAL NOT NULL,
-    "nameUz" TEXT NOT NULL,
-    "nameRu" TEXT,
-    "nameEn" TEXT,
+    "name_uz" TEXT NOT NULL,
+    "name_ru" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -233,13 +236,13 @@ CREATE TABLE "Level" (
 -- CreateTable
 CREATE TABLE "Profession" (
     "id" SERIAL NOT NULL,
-    "nameUz" TEXT NOT NULL,
-    "nameRu" TEXT,
-    "nameEn" TEXT,
+    "name_uz" TEXT NOT NULL,
+    "name_ru" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
     "img" TEXT NOT NULL,
-    "minWorkingHours" DOUBLE PRECISION NOT NULL,
-    "priceHourly" DECIMAL(65,30) NOT NULL,
-    "priceDaily" DECIMAL(65,30) NOT NULL,
+    "minWorkingHours" TEXT NOT NULL,
+    "priceHourly" TEXT NOT NULL,
+    "priceDaily" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -373,19 +376,22 @@ ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_toolId_fkey" FOREIGN KEY ("too
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tool" ADD CONSTRAINT "Tool_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Tool" ADD CONSTRAINT "Tool_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tool" ADD CONSTRAINT "Tool_powerId_fkey" FOREIGN KEY ("powerId") REFERENCES "Power"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Tool" ADD CONSTRAINT "Tool_powerId_fkey" FOREIGN KEY ("powerId") REFERENCES "Power"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Tool" ADD CONSTRAINT "Tool_sizeId_fkey" FOREIGN KEY ("sizeId") REFERENCES "Size"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Tool" ADD CONSTRAINT "Tool_sizeId_fkey" FOREIGN KEY ("sizeId") REFERENCES "Size"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MasterProfession" ADD CONSTRAINT "MasterProfession_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Master" ADD CONSTRAINT "Master_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MasterProfession" ADD CONSTRAINT "MasterProfession_levelId_fkey" FOREIGN KEY ("levelId") REFERENCES "Level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "MasterProfession" ADD CONSTRAINT "MasterProfession_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MasterProfession" ADD CONSTRAINT "MasterProfession_levelId_fkey" FOREIGN KEY ("levelId") REFERENCES "Level"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MasterProfession" ADD CONSTRAINT "MasterProfession_masterId_fkey" FOREIGN KEY ("masterId") REFERENCES "Master"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -9,6 +9,9 @@ import { MailModule } from './mail/mail.module';
 import { RegionsModule } from './regions/regions.module';
 import { CompanyIformationModule } from './company-iformation/company-iformation.module';
 import { EskizService } from './eskiz/eskiz.service';
+import { MasterModule } from './master/master.module';
+import { ProfessionModule } from './profession/profession.module';
+import { LevelModule } from './level/level.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { EskizService } from './eskiz/eskiz.service';
     MailModule,
     RegionsModule,
     CompanyIformationModule,
+    MasterModule,
+    ProfessionModule,
+    LevelModule,
     
   ],
   controllers: [AppController],

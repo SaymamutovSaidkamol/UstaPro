@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Users {
-  id        Int     @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   fullName  String
   email     String
   phone     String     @unique
@@ -16,7 +16,7 @@ model Users {
   password  String
   role      Role       @default(USER_FIZ)
   companyId Int?
-  img       String?
+  img       String
   status    UserStatus @default(INACTIVE)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -24,6 +24,7 @@ model Users {
   company CompanyInformation? @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   region  Regions             @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  master  Master[]
   session Session[]
   order   Order[]
 }
@@ -71,14 +72,15 @@ model Order {
   paymentType  PaymentType @default(CASH)
   withDelivery Boolean
   status       OrderStatus @default(PENDING)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
 
   user Users @relation(fields: [userId], references: [id])
 
   orderProduct OrderProduct[]
   orderTool    OrderTool[]
   comment      Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderProduct {
@@ -90,12 +92,14 @@ model OrderProduct {
   timeUnit     TimeUnit
   workingTime  Float
   price        Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 
   order      Order      @relation(fields: [orderId], references: [id])
   profession Profession @relation(fields: [professionId], references: [id])
-  leavel     Level[]
+
+  leavel Level[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderTool {
@@ -106,158 +110,184 @@ model OrderTool {
   timeUnit    TimeUnit
   workingTime Float
   price       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   order Order @relation(fields: [orderId], references: [id])
   tool  Tool  @relation(fields: [toolId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  message   String
-  stars     Json
-  orderId   Int
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id         Int    @id @default(autoincrement())
+  message_uz String
+  message_ru String
+  message_en String
+  stars      Float
+  orderId    Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Brand {
-  id        Int      @id @default(autoincrement())
-  nameUz    String
-  nameRu    String?
-  nameEn    String?
+  id      Int    @id @default(autoincrement())
+  name_uz String
+  name_ru String
+  name_en String
+
+  tools Tool[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  tools     Tool[]
 }
 
 model Size {
-  id        Int      @id @default(autoincrement())
-  nameUz    String
-  nameRu    String?
-  nameEn    String?
+  id      Int    @id @default(autoincrement())
+  name_uz String
+  name_ru String
+  name_en String
+
+  tools Tool[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  tools     Tool[]
 }
 
 model Power {
-  id        Int      @id @default(autoincrement())
-  nameUz    String
-  nameRu    String?
-  nameEn    String?
+  id      Int    @id @default(autoincrement())
+  name_uz String
+  name_ru String
+  name_en String
+
+  tools Tool[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  tools     Tool[]
 }
 
 model Tool {
-  id            Int      @id @default(autoincrement())
-  nameUz        String
-  nameRu        String?
-  nameEn        String?
-  descriptionUz String
-  descriptionRu String?
-  descriptionEn String?
-  price         Decimal
-  quantity      Int
-  code          Int      @unique
-  brandId       Int?
-  powerId       Int?
-  sizeId        Int?
-  img           String
-  isAvailable   Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  brand Brand? @relation(fields: [brandId], references: [id], onDelete: SetNull)
-  power Power? @relation(fields: [powerId], references: [id], onDelete: SetNull)
-  size  Size?  @relation(fields: [sizeId], references: [id], onDelete: SetNull)
+  id             Int     @id @default(autoincrement())
+  name_uz        String
+  name_ru        String
+  name_en        String
+  description_uz String
+  description_ru String
+  description_en String
+  price          String
+  quantity       Int
+  code           Int     @unique
+  brandId        Int
+  powerId        Int
+  sizeId         Int
+  img            String
+  isAvailable    Boolean @default(true)
 
   professionTools ProfessionTool[]
   ordeeTools      OrderTool[]
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  power Power @relation(fields: [powerId], references: [id], onDelete: Cascade)
+  size  Size  @relation(fields: [sizeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Master {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   fullName    String
   phoneNumber String
-  isActive    Boolean  @default(true)
-  birthYear   Int
+  isActive    Boolean @default(true)
+  birthYear   String
   img         String
   passportImg String
   about       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId      Int
 
   masterProfession MasterProfession[]
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MasterProfession {
-  id              Int         @id @default(autoincrement())
-  professionId    Int?
-  minWorkingHours Float?
-  levelId         Int?
-  priceHourly     Decimal
-  priceDaily      Decimal
+  id              Int     @id @default(autoincrement())
+  professionId    Int
+  minWorkingHours Float
+  levelId         Int
+  priceHourly     String
+  priceDaily      String
   experience      Float
-  masterId        Int?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  profession      Profession? @relation(fields: [professionId], references: [id], onDelete: SetNull)
-  level           Level?      @relation(fields: [levelId], references: [id], onDelete: SetNull)
-  master          Master?     @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  masterId        Int
+
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  master     Master     @relation(fields: [masterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Level {
-  id                Int                @id @default(autoincrement())
-  nameUz            String
-  nameRu            String?
-  nameEn            String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id      Int    @id @default(autoincrement())
+  name_uz String
+  name_ru String
+  name_en String
+
   masterProfessions MasterProfession[]
   professionLevels  ProfessionLevel[]
   orderProductLevel OrderProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Profession {
-  id                Int                @id @default(autoincrement())
-  nameUz            String
-  nameRu            String?
-  nameEn            String?
-  img               String
-  minWorkingHours   Float
-  priceHourly       Decimal
-  priceDaily        Decimal
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id              Int     @id @default(autoincrement())
+  name_uz         String
+  name_ru         String
+  name_en         String
+  img             String
+  minWorkingHours String
+  priceHourly     String
+  priceDaily      String
+
   masterProfessions MasterProfession[]
   professionLevels  ProfessionLevel[]
   professionTools   ProfessionTool[]
   orderProducts     OrderProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProfessionLevel {
-  id           Int        @id @default(autoincrement())
+  id           Int @id @default(autoincrement())
   professionId Int
   levelId      Int
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  profession   Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
-  level        Level      @relation(fields: [levelId], references: [id], onDelete: Cascade)
+
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProfessionTool {
-  id           Int        @id @default(autoincrement())
+  id           Int @id @default(autoincrement())
   professionId Int
   toolId       Int
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  profession   Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
-  tool         Tool       @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  tool       Tool       @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Role {
@@ -266,6 +296,7 @@ enum Role {
   VIEWER_ADMIN
   USER_FIZ
   USER_YUR
+  MASTER
 }
 
 enum UserStatus {
