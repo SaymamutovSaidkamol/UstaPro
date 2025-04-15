@@ -178,7 +178,7 @@ model Tool {
   description_en String
   price          String
   quantity       Int
-  code           Int     @unique
+  code           String  @unique
   brandId        Int
   powerId        Int
   sizeId         Int
@@ -216,7 +216,7 @@ model Master {
 }
 
 model MasterProfession {
-  id              Int     @id @default(autoincrement())
+  id              Int    @id @default(autoincrement())
   professionId    Int
   minWorkingHours Float
   levelId         Int
@@ -248,7 +248,7 @@ model Level {
 }
 
 model Profession {
-  id              Int     @id @default(autoincrement())
+  id              Int    @id @default(autoincrement())
   name_uz         String
   name_ru         String
   name_en         String

@@ -2,6 +2,7 @@ import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { QuerySizeDto } from './dto/size-query.dto';
 
 @Injectable()
 export class SizeService {
@@ -108,6 +109,43 @@ export class SizeService {
         message: 'size deleted successfully',
         data: await this.prisma.size.delete({ where: { id } }),
       };
+    } catch (error) {
+      this.Error(error);
+    }
+  }
+
+  async query(dto: QuerySizeDto, req: Request) {
+    try {
+      const {
+        name_uz,
+        name_ru,
+        name_en,
+        page = 1,
+        limit = 10,
+        sortBy = 'createdAt',
+        order = 'desc',
+      } = dto;
+
+      const skip = (page - 1) * limit;
+
+      return this.prisma.brand.findMany({
+        where: {
+          name_uz: name_uz
+            ? { contains: name_uz, mode: 'insensitive' }
+            : undefined,
+          name_ru: name_ru
+            ? { contains: name_uz, mode: 'insensitive' }
+            : undefined,
+          name_en: name_en
+            ? { contains: name_uz, mode: 'insensitive' }
+            : undefined,
+        },
+        orderBy: {
+          [sortBy]: order,
+        },
+        skip,
+        take: limit,
+      });
     } catch (error) {
       this.Error(error);
     }

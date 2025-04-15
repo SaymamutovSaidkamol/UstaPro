@@ -2,15 +2,15 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
 
 export class CreateBrandDto {
-      @ApiProperty({ example: 'Yosh mutaxassi' })
+      @ApiProperty({ example: 'samsung' })
       @IsString()
       name_uz: string;
     
-      @ApiProperty({ example: 'Младший специалист' })
+      @ApiProperty({ example: 'samsung' })
       @IsString()
       name_ru: string;
     
-      @ApiProperty({ example: 'Junior' })
+      @ApiProperty({ example: 'samsung' })
       @IsString()
       name_en: string;
     

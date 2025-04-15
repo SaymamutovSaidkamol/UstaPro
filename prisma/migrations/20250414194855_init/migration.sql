@@ -176,7 +176,7 @@ CREATE TABLE "Tool" (
     "description_en" TEXT NOT NULL,
     "price" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
-    "code" INTEGER NOT NULL,
+    "code" TEXT NOT NULL,
     "brandId" INTEGER NOT NULL,
     "powerId" INTEGER NOT NULL,
     "sizeId" INTEGER NOT NULL,
