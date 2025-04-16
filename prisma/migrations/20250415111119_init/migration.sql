@@ -272,8 +272,25 @@ CREATE TABLE "ProfessionTool" (
 );
 
 -- CreateTable
+CREATE TABLE "Basket" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "professionId" INTEGER NOT NULL,
+    "toolId" INTEGER NOT NULL,
+    "livelId" INTEGER NOT NULL,
+    "count" INTEGER NOT NULL,
+    "timeUnit" "TimeUnit" NOT NULL,
+    "workingTime" INTEGER NOT NULL,
+    "totalPrice" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Basket_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Info" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "links" JSONB NOT NULL,
     "phone" TEXT[],
@@ -283,7 +300,8 @@ CREATE TABLE "Info" (
 
 -- CreateTable
 CREATE TABLE "Contact" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
     "full_name" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "address" TEXT NOT NULL,
@@ -296,9 +314,13 @@ CREATE TABLE "Contact" (
 
 -- CreateTable
 CREATE TABLE "FAQ" (
-    "id" TEXT NOT NULL,
-    "question" TEXT NOT NULL,
-    "answer" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
+    "question_uz" TEXT NOT NULL,
+    "question_ru" TEXT NOT NULL,
+    "question_en" TEXT NOT NULL,
+    "answer_uz" TEXT NOT NULL,
+    "answer_ru" TEXT NOT NULL,
+    "answer_en" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -307,7 +329,7 @@ CREATE TABLE "FAQ" (
 
 -- CreateTable
 CREATE TABLE "Showcase" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name_uz" TEXT NOT NULL,
     "name_ru" TEXT NOT NULL,
     "name_en" TEXT NOT NULL,
@@ -316,17 +338,21 @@ CREATE TABLE "Showcase" (
     "description_en" TEXT NOT NULL,
     "image" TEXT NOT NULL,
     "link" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Showcase_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Partners" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name_uz" TEXT NOT NULL,
     "name_ru" TEXT NOT NULL,
     "name_en" TEXT NOT NULL,
     "image" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Partners_pkey" PRIMARY KEY ("id")
 );
@@ -358,19 +384,19 @@ ALTER TABLE "Users" ADD CONSTRAINT "Users_regionId_fkey" FOREIGN KEY ("regionId"
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -407,6 +433,12 @@ ALTER TABLE "ProfessionTool" ADD CONSTRAINT "ProfessionTool_professionId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "ProfessionTool" ADD CONSTRAINT "ProfessionTool_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_LevelToOrderProduct" ADD CONSTRAINT "_LevelToOrderProduct_A_fkey" FOREIGN KEY ("A") REFERENCES "Level"("id") ON DELETE CASCADE ON UPDATE CASCADE;

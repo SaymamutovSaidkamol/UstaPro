@@ -27,6 +27,8 @@ model Users {
   master  Master[]
   session Session[]
   order   Order[]
+  basket  Basket[]
+  cantact Contact[]
 }
 
 model CompanyInformation {
@@ -73,7 +75,7 @@ model Order {
   withDelivery Boolean
   status       OrderStatus @default(PENDING)
 
-  user Users @relation(fields: [userId], references: [id])
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   orderProduct OrderProduct[]
   orderTool    OrderTool[]
@@ -93,8 +95,8 @@ model OrderProduct {
   workingTime  Float
   price        Int
 
-  order      Order      @relation(fields: [orderId], references: [id])
-  profession Profession @relation(fields: [professionId], references: [id])
+  order      Order      @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   leavel Level[]
 
@@ -111,8 +113,8 @@ model OrderTool {
   workingTime Float
   price       Int
 
-  order Order @relation(fields: [orderId], references: [id])
-  tool  Tool  @relation(fields: [toolId], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tool  Tool  @relation(fields: [toolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -126,7 +128,7 @@ model Comment {
   stars      Float
   orderId    Int
 
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -188,9 +190,9 @@ model Tool {
   professionTools ProfessionTool[]
   ordeeTools      OrderTool[]
 
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  power Power @relation(fields: [powerId], references: [id], onDelete: Cascade)
-  size  Size  @relation(fields: [sizeId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  power Power @relation(fields: [powerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  size  Size  @relation(fields: [sizeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -209,7 +211,7 @@ model Master {
 
   masterProfession MasterProfession[]
 
-  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -225,9 +227,9 @@ model MasterProfession {
   experience      Float
   masterId        Int
 
-  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
-  level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  master     Master     @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  master     Master     @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -271,8 +273,8 @@ model ProfessionLevel {
   professionId Int
   levelId      Int
 
-  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
-  level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -283,8 +285,25 @@ model ProfessionTool {
   professionId Int
   toolId       Int
 
-  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
-  tool       Tool       @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tool       Tool       @relation(fields: [toolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Basket {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  professionId Int
+  toolId       Int
+  livelId      Int
+  count        Int
+  timeUnit     TimeUnit
+  workingTime  Int
+  totalPrice   Int
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -321,32 +340,42 @@ enum PaymentType {
 }
 
 model Info {
-  id    String   @id @default(uuid())
+  id    Int      @id @default(autoincrement())
   email String
   links Json
   phone String[]
 }
 
 model Contact {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
+  userId    Int
   full_name String
   phone     String
   address   String
   message   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model FAQ {
-  id        String   @id @default(uuid())
-  question  String
-  answer    String
+  id Int @id @default(autoincrement())
+
+  question_uz String
+  question_ru String
+  question_en String
+  answer_uz   String
+  answer_ru   String
+  answer_en   String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Showcase {
-  id             String @id @default(uuid())
+  id Int @id @default(autoincrement())
+
   name_uz        String
   name_ru        String
   name_en        String
@@ -355,12 +384,19 @@ model Showcase {
   description_en String
   image          String
   link           String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Partners {
-  id      String @id @default(uuid())
+  id Int @id @default(autoincrement())
+
   name_uz String
   name_ru String
   name_en String
   image   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -134,10 +134,10 @@ export class BrandService {
             ? { contains: name_uz, mode: 'insensitive' }
             : undefined,
           name_ru: name_ru
-            ? { contains: name_uz, mode: 'insensitive' }
+            ? { contains: name_ru, mode: 'insensitive' }
             : undefined,
           name_en: name_en
-            ? { contains: name_uz, mode: 'insensitive' }
+            ? { contains: name_en, mode: 'insensitive' }
             : undefined,
         },
         orderBy: {
