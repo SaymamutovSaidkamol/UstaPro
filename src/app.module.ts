@@ -16,6 +16,14 @@ import { BrandModule } from './brand/brand.module';
 import { PowerModule } from './power/power.module';
 import { SizeModule } from './size/size.module';
 import { ToolModule } from './tool/tool.module';
+import { BasketModule } from './basket/basket.module';
+import { InfoModule } from './info/info.module';
+import { CantactModule } from './Cantact/cantact.module';
+import { FaqModule } from './faq/faq.module';
+import { ShowcaseModule } from './showcase/showcase.module';
+import { PartnersModule } from './partners/partners.module';
+import { ProfessionToolModule } from './profession-tool/profession-tool.module';
+import { ProfessionLevelModule } from './profession-level/profession-level.module';
 
 @Module({
   imports: [
@@ -32,6 +40,14 @@ import { ToolModule } from './tool/tool.module';
     PowerModule,
     SizeModule,
     ToolModule,
+    BasketModule,
+    InfoModule,
+    CantactModule,
+    FaqModule,
+    ShowcaseModule,
+    PartnersModule,
+    ProfessionToolModule,
+    ProfessionLevelModule
     
   ],
   controllers: [AppController],
