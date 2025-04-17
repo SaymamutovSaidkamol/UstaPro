@@ -24,6 +24,7 @@ import { ShowcaseModule } from './showcase/showcase.module';
 import { PartnersModule } from './partners/partners.module';
 import { ProfessionToolModule } from './profession-tool/profession-tool.module';
 import { ProfessionLevelModule } from './profession-level/profession-level.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -47,7 +48,8 @@ import { ProfessionLevelModule } from './profession-level/profession-level.modul
     ShowcaseModule,
     PartnersModule,
     ProfessionToolModule,
-    ProfessionLevelModule
+    ProfessionLevelModule,
+    OrderModule
     
   ],
   controllers: [AppController],

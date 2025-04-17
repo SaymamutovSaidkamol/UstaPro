@@ -66,13 +66,12 @@ model Order {
   id           Int         @id @default(autoincrement())
   userId       Int
   adress       String
-  latitude     String
-  longitude    String
   date         DateTime    @default(now())
-  totalPrice   String
+  totalPrice   Int
   isPaid       Boolean     @default(false)
   paymentType  PaymentType @default(CASH)
-  withDelivery Boolean
+  withDelivery Boolean     @default(false)
+  message      String?
   status       OrderStatus @default(PENDING)
 
   user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -80,6 +79,7 @@ model Order {
   orderProduct OrderProduct[]
   orderTool    OrderTool[]
   comment      Comment[]
+  orderMaster  OrderMaster[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -115,6 +115,18 @@ model OrderTool {
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tool  Tool  @relation(fields: [toolId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderMaster {
+  id       Int @id @default(autoincrement())
+  orderId  Int
+  masterId Int
+
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  master Master @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -210,6 +222,7 @@ model Master {
   userId      Int
 
   masterProfession MasterProfession[]
+  orderMaster      OrderMaster[]
 
   user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
