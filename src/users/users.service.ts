@@ -83,7 +83,7 @@ export class UsersService {
     // );
 
     // await this.eskiz.sendSMS('Send SMS', data.phone);  
-    // let newUser = await this.prisma.users.create({ data });
+    let newUser = await this.prisma.users.create({ data });
 
     return {
       message: 'Registration created successfully. Please verify your account.',

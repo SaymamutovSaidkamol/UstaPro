@@ -33,3 +33,15 @@ export enum TimeUnit {
   HOURLY = 'HOURLY',
   DAILY = 'DAILY',
 }
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+}
+
+
+export enum PaymentType {
+  CASH = 'CASH',
+  CLICK = 'CLICK',
+  PAYME = 'PAYME'
+}
