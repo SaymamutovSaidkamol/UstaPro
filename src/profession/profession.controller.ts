@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Req } from '@nestjs/common';
 import { ProfessionService } from './profession.service';
 import { CreateProfessionDto } from './dto/create-profession.dto';
 import { UpdateProfessionDto } from './dto/update-profession.dto';
@@ -6,10 +6,26 @@ import { Roles } from 'src/decorators/role.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Role } from 'src/Enums/role.enum';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { QueryProfessionDto } from './dto/query-profession.dto';
 
 @Controller('profession')
 export class ProfessionController {
   constructor(private readonly professionService: ProfessionService) {}
+
+  
+    // @UseGuards(AuthGuard)
+    @Get('/query')
+    @ApiOperation({
+      summary: 'Professionlarni qidirish',
+      description:
+        'Berilgan parametrlar bo‘yicha Professionlarni filterlash, sortlash, pagination',
+    })
+    @ApiResponse({ status: 200, description: 'Muvaffaqiyatli bajarildi' })
+    @ApiResponse({ status: 400, description: 'Noto‘g‘ri so‘rov' })
+    query(@Query() query: QueryProfessionDto, @Req() req: Request) {
+      return this.professionService.query(query, req);
+    }
 
   
   @Roles(Role.ADMIN)

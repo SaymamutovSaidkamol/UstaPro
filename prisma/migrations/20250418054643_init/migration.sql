@@ -34,6 +34,7 @@ CREATE TABLE "Users" (
 -- CreateTable
 CREATE TABLE "CompanyInformation" (
     "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
     "INN" TEXT NOT NULL,
     "MFO" TEXT NOT NULL,
     "R_S" TEXT NOT NULL,
@@ -219,11 +220,11 @@ CREATE TABLE "Master" (
 CREATE TABLE "MasterProfession" (
     "id" SERIAL NOT NULL,
     "professionId" INTEGER NOT NULL,
-    "minWorkingHours" DOUBLE PRECISION NOT NULL,
+    "minWorkingHours" INTEGER NOT NULL,
     "levelId" INTEGER NOT NULL,
     "priceHourly" TEXT NOT NULL,
     "priceDaily" TEXT NOT NULL,
-    "experience" DOUBLE PRECISION NOT NULL,
+    "experience" INTEGER NOT NULL,
     "masterId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -264,6 +265,9 @@ CREATE TABLE "ProfessionLevel" (
     "id" SERIAL NOT NULL,
     "professionId" INTEGER NOT NULL,
     "levelId" INTEGER NOT NULL,
+    "minWorkingHours" INTEGER NOT NULL,
+    "priceHourly" TEXT NOT NULL,
+    "priceDaily" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -374,10 +378,10 @@ CREATE UNIQUE INDEX "Users_phone_key" ON "Users"("phone");
 CREATE UNIQUE INDEX "Tool_code_key" ON "Tool"("code");
 
 -- AddForeignKey
-ALTER TABLE "Users" ADD CONSTRAINT "Users_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "CompanyInformation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Users" ADD CONSTRAINT "Users_regionId_fkey" FOREIGN KEY ("regionId") REFERENCES "Regions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Users" ADD CONSTRAINT "Users_regionId_fkey" FOREIGN KEY ("regionId") REFERENCES "Regions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CompanyInformation" ADD CONSTRAINT "CompanyInformation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -450,6 +454,15 @@ ALTER TABLE "ProfessionTool" ADD CONSTRAINT "ProfessionTool_toolId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "Basket" ADD CONSTRAINT "Basket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_livelId_fkey" FOREIGN KEY ("livelId") REFERENCES "Level"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

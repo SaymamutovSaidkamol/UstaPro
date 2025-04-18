@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { LevelService } from './level.service';
 import { CreateLevelDto } from './dto/create-level.dto';
@@ -17,10 +18,25 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Role } from 'src/Enums/role.enum';
 import { RoleGuard } from 'src/auth/role.guard';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { QueryBrandDto } from 'src/brand/dto/brand-query.dto';
+import { QueryLevelDto } from './dto/level-query.dto';
 
 @Controller('level')
 export class LevelController {
   constructor(private readonly levelService: LevelService) {}
+
+    // @UseGuards(AuthGuard)
+    @Get('/query')
+    @ApiOperation({
+      summary: 'Levellarni qidirish',
+      description:
+        'Berilgan parametrlar bo‘yicha Levellarni filterlash, sortlash, pagination',
+    })
+    @ApiResponse({ status: 200, description: 'Muvaffaqiyatli bajarildi' })
+    @ApiResponse({ status: 400, description: 'Noto‘g‘ri so‘rov' })
+    query(@Query() query: QueryLevelDto, @Req() req: Request) {
+      return this.levelService.query(query, req);
+    }
 
   // @UseGuards(AuthGuard)
   @Get()

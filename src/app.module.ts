@@ -7,7 +7,6 @@ import { UploadModule } from './upload/upload.module';
 import { MailModule } from './mail/mail.module';
 // import { CommentsModule } from './comments/comments.module';
 import { RegionsModule } from './regions/regions.module';
-import { CompanyIformationModule } from './company-iformation/company-iformation.module';
 import { EskizService } from './eskiz/eskiz.service';
 import { MasterModule } from './master/master.module';
 import { ProfessionModule } from './profession/profession.module';
@@ -22,8 +21,6 @@ import { CantactModule } from './Cantact/cantact.module';
 import { FaqModule } from './faq/faq.module';
 import { ShowcaseModule } from './showcase/showcase.module';
 import { PartnersModule } from './partners/partners.module';
-import { ProfessionToolModule } from './profession-tool/profession-tool.module';
-import { ProfessionLevelModule } from './profession-level/profession-level.module';
 import { OrderModule } from './order/order.module';
 
 @Module({
@@ -33,7 +30,6 @@ import { OrderModule } from './order/order.module';
     UploadModule,
     MailModule,
     RegionsModule,
-    CompanyIformationModule,
     MasterModule,
     ProfessionModule,
     LevelModule,
@@ -47,8 +43,6 @@ import { OrderModule } from './order/order.module';
     FaqModule,
     ShowcaseModule,
     PartnersModule,
-    ProfessionToolModule,
-    ProfessionLevelModule,
     OrderModule,
     
   ],

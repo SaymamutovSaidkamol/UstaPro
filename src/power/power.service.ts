@@ -2,6 +2,7 @@ import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { CreatePowerDto } from './dto/create-power.dto';
 import { UpdatePowerDto } from './dto/update-power.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { QueryPowerDto } from './dto/power-query.dto';
 
 @Injectable()
 export class PowerService {
@@ -108,6 +109,43 @@ export class PowerService {
         message: 'power deleted successfully',
         data: await this.prisma.power.delete({ where: { id } }),
       };
+    } catch (error) {
+      this.Error(error);
+    }
+  }
+
+  async query(dto: QueryPowerDto, req: Request) {
+    try {
+      const {
+        name_uz,
+        name_ru,
+        name_en,
+        page = 1,
+        limit = 10,
+        sortBy = 'createdAt',
+        order = 'desc',
+      } = dto;
+
+      const skip = (page - 1) * limit;
+
+      return this.prisma.power.findMany({
+        where: {
+          name_uz: name_uz
+            ? { contains: name_uz, mode: 'insensitive' }
+            : undefined,
+          name_ru: name_ru
+            ? { contains: name_ru, mode: 'insensitive' }
+            : undefined,
+          name_en: name_en
+            ? { contains: name_en, mode: 'insensitive' }
+            : undefined,
+        },
+        orderBy: {
+          [sortBy]: order,
+        },
+        skip,
+        take: limit,
+      });
     } catch (error) {
       this.Error(error);
     }

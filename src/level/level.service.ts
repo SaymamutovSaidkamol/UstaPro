@@ -2,6 +2,7 @@ import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { QueryLevelDto } from './dto/level-query.dto';
 
 @Injectable()
 export class LevelService {
@@ -112,4 +113,41 @@ export class LevelService {
       this.Error(error);
     }
   }
+
+    async query(dto: QueryLevelDto, req: Request) {
+      try {
+        const {
+          name_uz,
+          name_ru,
+          name_en,
+          page = 1,
+          limit = 10,
+          sortBy = 'createdAt',
+          order = 'desc',
+        } = dto;
+  
+        const skip = (page - 1) * limit;
+  
+        return this.prisma.level.findMany({
+          where: {
+            name_uz: name_uz
+              ? { contains: name_uz, mode: 'insensitive' }
+              : undefined,
+            name_ru: name_ru
+              ? { contains: name_ru, mode: 'insensitive' }
+              : undefined,
+            name_en: name_en
+              ? { contains: name_en, mode: 'insensitive' }
+              : undefined,
+          },
+          orderBy: {
+            [sortBy]: order,
+          },
+          skip,
+          take: limit,
+        });
+      } catch (error) {
+        this.Error(error);
+      }
+    }
 }

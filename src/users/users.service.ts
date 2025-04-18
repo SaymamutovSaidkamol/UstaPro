@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  Body,
+  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ import {
 } from './dto/update-user.dto';
 import { EskizService } from 'src/eskiz/eskiz.service';
 import * as DeviceDetector from 'device-detector-js';
+import { QueryUserDto } from './dto/user-query.dto';
 
 totp.options = { step: 120 };
 
@@ -36,7 +39,15 @@ export class UsersService {
     private eskiz: EskizService,
   ) {}
 
+  private Error(error: any): never {
+    if (error instanceof HttpException) {
+      throw error;
+    }
+    throw new BadRequestException(error.message);
+  }
+
   async register(data: RegisterDto) {
+    let { UserCompany, ...body } = data;
     let checkUser = await this.prisma.users.findFirst({
       where: { phone: data.phone },
     });
@@ -59,24 +70,6 @@ export class UsersService {
       );
     }
 
-    if (data.role == 'USER_YUR') {
-      if (!data.companyId) {
-        throw new BadRequestException('Company ID is required.');
-      }
-
-      let checkCompany = await this.prisma.companyInformation.findFirst({
-        where: { id: data.companyId },
-      });
-
-      if (!checkCompany) {
-        throw new NotFoundException('Company Not Found');
-      }
-    } else {
-      if (data.companyId) {
-        throw new BadRequestException('Error message was sent.');
-      }
-    }
-
     let hashPassword = bcrypt.hashSync(data.password, 7);
     data.password = hashPassword;
 
@@ -90,6 +83,18 @@ export class UsersService {
 
     // await this.eskiz.sendSMS('Send SMS', data.phone);
     let newUser = await this.prisma.users.create({ data });
+
+    await this.prisma.companyInformation.create({
+      data: {
+        userId: newUser.id,
+        INN: UserCompany[0].INN,
+        MFO: UserCompany[0].MFO,
+        R_S: UserCompany[0].R_S,
+        BANK: UserCompany[0].BANK,
+        OKEYD: UserCompany[0].OKEYD,
+        ADRESS: UserCompany[0].ADRESS,
+      },
+    });
 
     return {
       message: 'Registration created successfully. Please verify your account.',
@@ -439,10 +444,42 @@ export class UsersService {
       let newUser = await this.prisma.users.create({ data });
 
       return {
-        message:
-          'Admin added successfully',
+        message: 'Admin added successfully',
         Code: otp,
       };
     } catch (error) {}
+  }
+
+  async query(dto: QueryUserDto, req: Request) {
+    try {
+      const {
+        fullName,
+        phone,
+        regionId,
+        page = 1,
+        limit = 10,
+        sortBy = 'createdAt',
+        order = 'desc',
+      } = dto;
+
+      const skip = (page - 1) * limit;
+
+      return this.prisma.users.findMany({
+        where: {
+          fullName: fullName
+            ? { contains: fullName, mode: 'insensitive' }
+            : undefined,
+          phone: phone ? { contains: phone, mode: 'insensitive' } : undefined,
+          regionId: Number(regionId),
+        },
+        orderBy: {
+          [sortBy]: order,
+        },
+        skip,
+        take: limit,
+      });
+    } catch (error) {
+      this.Error(error);
+    }
   }
 }

@@ -10,8 +10,25 @@ import {
 
 export class CreateProfessionLevelDto {
   @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  professionId: number;
+  
+  @ApiProperty({ example: 2 })
   @IsNumber()
   levelId: number;
+
+  @ApiProperty({ example: 2 })
+  @IsNumber()
+  minWorkingHours: number;
+
+  @ApiProperty({ example: '10000' })
+  @IsString()
+  priceHourly: string;
+
+  @ApiProperty({ example: '3000000' })
+  @IsString()
+  priceDaily: string;
 
   @IsOptional()
   createdAt?: Date = new Date();
