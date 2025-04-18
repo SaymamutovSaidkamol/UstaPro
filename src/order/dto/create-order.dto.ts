@@ -40,7 +40,7 @@ export class CreateOrderProductDto {
   quantity: number;
 
   @IsEnum(TimeUnit)
-  @ApiProperty({ enum: TimeUnit, example: ['HOURLY', 'DAILY'] })
+  @ApiProperty({ enum: TimeUnit, example: 'HOURLY, DAILY' })
   timeUnit: TimeUnit;
 
   @IsNumber()
@@ -73,7 +73,7 @@ export class CreateOrderDto {
   @IsBoolean()
   isPaid: boolean;
 
-  @ApiProperty({ example: ['CASH', 'CLICK', 'PAYME'] })
+  @ApiProperty({ example: 'CASH, CLICK, PAYME' })
   @IsString()
   paymentType: PaymentType;
 
@@ -95,7 +95,7 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderProductDto)
   @ApiProperty({
-    type: [CreateOrderProductDto]
+    type: [CreateOrderProductDto],
   })
   orderProducts: CreateOrderProductDto[];
 }

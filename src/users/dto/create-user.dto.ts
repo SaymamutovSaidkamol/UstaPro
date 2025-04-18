@@ -1,7 +1,37 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
-import { IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { UserStatus } from 'src/Enums/role.enum';
+
+export class CreateCompanyIformationDto {
+  @IsNumber()
+  userId: number;
+
+  @ApiProperty({ example: '1234567' })
+  @IsString()
+  INN: string;
+
+  @ApiProperty({ example: '345353' })
+  @IsString()
+  MFO: string;
+
+  @ApiProperty({ example: '236482482534832' })
+  @IsString()
+  R_S: string;
+
+  @ApiProperty({ example: 'Xalq Bank' })
+  @IsString()
+  BANK: string;
+
+  @ApiProperty({ example: '242342342' })
+  @IsString()
+  OKEYD: string;
+
+  @ApiProperty({ example: 'Toshkent' })
+  @IsString()
+  ADRESS: string;
+}
 
 export class RegisterDto {
   @ApiProperty({ example: 'Saidkamol' })
@@ -29,14 +59,18 @@ export class RegisterDto {
   img: string;
 
   @ApiProperty({
-    example: ['USER_FIZ', 'USER_YUR', 'VIEWER_ADMIN', 'ADMIN', 'SUPERADMIN'],
+    example: "USER_FIZ, USER_YUR, VIEWER_ADMIN, ADMIN, SUPERADMIN",
   })
   @IsString()
   role: Role;
 
-  @ApiProperty({ example: 1 })
-  @IsString()
-  companyId?: number;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateCompanyIformationDto)
+  @ApiProperty({
+    type: [CreateCompanyIformationDto],
+  })
+  UserCompany: CreateCompanyIformationDto[];
 
   @IsString()
   status: UserStatus;

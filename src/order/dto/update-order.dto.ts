@@ -12,11 +12,11 @@ import {
 } from 'class-validator';
 
 export class UpdateOrderDto {
-  @ApiProperty({example: ['PENDING', 'ACCEPTED',]})
+  @ApiProperty({ example: '[PENDING, ACCEPTED' })
   @IsString()
   status?: OrderStatus;
 
-  @ApiProperty({example: 1})
+  @ApiProperty({ example: 1 })
   @IsNumber()
   masterId?: number;
 

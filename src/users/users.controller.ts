@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 // import { UsersService } from './users.service';
 import {
@@ -27,10 +28,26 @@ import {
   UpdateUserForUserDto,
 } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { QueryUserDto } from './dto/user-query.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+    @UseGuards(AuthGuard)
+    @Get('/query')
+    @ApiOperation({
+      summary: 'Userlarni qidirish',
+      description:
+        'Berilgan parametrlar bo‘yicha userlarni filterlash, sortlash, pagination',
+    })
+    @ApiResponse({ status: 200, description: 'Muvaffaqiyatli bajarildi' })
+    @ApiResponse({ status: 400, description: 'Noto‘g‘ri so‘rov' })
+    query(@Query() query: QueryUserDto, @Req() req: Request) {
+      return this.usersService.query(query, req);
+    }
+
 
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RoleGuard)

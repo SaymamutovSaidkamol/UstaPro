@@ -21,8 +21,8 @@ model Users {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  company CompanyInformation? @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  region  Regions             @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  company CompanyInformation[]
+  region  Regions              @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   master  Master[]
   session Session[]
@@ -33,6 +33,7 @@ model Users {
 
 model CompanyInformation {
   id     Int    @id @default(autoincrement())
+  userId Int
   INN    String
   MFO    String
   R_S    String
@@ -40,7 +41,7 @@ model CompanyInformation {
   OKEYD  String
   ADRESS String
 
-  user Users[]
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Regions {
@@ -201,6 +202,7 @@ model Tool {
 
   professionTools ProfessionTool[]
   ordeeTools      OrderTool[]
+  basket          Basket[]
 
   brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   power Power @relation(fields: [powerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -259,6 +261,7 @@ model Level {
   masterProfessions MasterProfession[]
   professionLevels  ProfessionLevel[]
   orderProductLevel OrderProduct[]
+  basket            Basket[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -278,15 +281,19 @@ model Profession {
   professionLevels  ProfessionLevel[]
   professionTools   ProfessionTool[]
   orderProducts     OrderProduct[]
+  basket            Basket[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model ProfessionLevel {
-  id           Int @id @default(autoincrement())
-  professionId Int
-  levelId      Int
+  id              Int    @id @default(autoincrement())
+  professionId    Int
+  levelId         Int
+  minWorkingHours Int
+  priceHourly     String
+  priceDaily      String
 
   profession Profession @relation(fields: [professionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -318,7 +325,10 @@ model Basket {
   workingTime  Int
   totalPrice   Int
 
-  user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user       Users      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profession Profession @relation(fields: [professionId], references: [id])
+  tool       Tool       @relation(fields: [toolId], references: [id])
+  level      Level      @relation(fields: [livelId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
