@@ -8,12 +8,17 @@ import {
   Delete,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { QueryBrandDto } from './dto/brand-query.dto';
+import { RoleGuard } from 'src/auth/role.guard';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Roles } from 'src/decorators/role.decorator';
+import { Role } from 'src/Enums/role.enum';
 
 @Controller('brand')
 export class BrandController {
@@ -42,16 +47,24 @@ export class BrandController {
     return this.brandService.findOne(+id);
   }
 
+  
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Post()
   create(@Body() createBrandDto: CreateBrandDto) {
     return this.brandService.create(createBrandDto);
   }
 
+
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
     return this.brandService.update(+id, updateBrandDto);
   }
-
+  
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.brandService.remove(+id);

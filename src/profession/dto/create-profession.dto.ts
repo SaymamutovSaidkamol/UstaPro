@@ -1,5 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+export class CreateProfessionLevelDto {
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  levelId: number;
+
+  @IsOptional()
+  createdAt?: Date = new Date();
+}
+
+
+export class CreateProfessionToolDto {
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  toolId: number;
+
+  @IsOptional()
+  createdAt?: Date = new Date();
+}
 
 export class CreateProfessionDto {
   @ApiProperty({ example: 'Santexnik' })
@@ -29,6 +56,22 @@ export class CreateProfessionDto {
   @ApiProperty({ example: '12000.50' })
   @IsString()
   priceDaily: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateProfessionLevelDto)
+  @ApiProperty({
+    type: [CreateProfessionLevelDto],
+  })
+  ProfessionLevel: CreateProfessionLevelDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateProfessionToolDto)
+  @ApiProperty({
+    type: [CreateProfessionToolDto],
+  })
+  ProfessionTool: CreateProfessionToolDto[];
 
   @IsOptional()
   createdAt?: Date = new Date();

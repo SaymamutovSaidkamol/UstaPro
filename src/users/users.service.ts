@@ -26,7 +26,7 @@ import * as DeviceDetector from 'device-detector-js';
 totp.options = { step: 120 };
 
 @Injectable()
-export class UsersService { 
+export class UsersService {
   private readonly deviceDetector = new DeviceDetector();
 
   constructor(
@@ -51,6 +51,12 @@ export class UsersService {
 
     if (!checkRegion) {
       throw new NotFoundException('Region Not Found');
+    }
+
+    if (data.role === 'ADMIN') {
+      throw new BadRequestException(
+        "You can't become an admin, you can't pass.",
+      );
     }
 
     if (data.role == 'USER_YUR') {
@@ -82,7 +88,7 @@ export class UsersService {
     //   `new Otp:  ${otp}`,
     // );
 
-    // await this.eskiz.sendSMS('Send SMS', data.phone);  
+    // await this.eskiz.sendSMS('Send SMS', data.phone);
     let newUser = await this.prisma.users.create({ data });
 
     return {
@@ -384,5 +390,59 @@ export class UsersService {
       message: 'My Information',
       data: await this.prisma.users.findFirst({ where: { id } }),
     };
+  }
+
+  async addAdmin(data: RegisterDto, req: Request) {
+    try {
+      if (req['user'].role != 'ADMIN') {
+        throw new BadRequestException(
+          "You can't become an admin, you can't pass",
+        );
+      }
+
+      let checkUser = await this.prisma.users.findFirst({
+        where: { phone: data.phone },
+      });
+
+      if (checkUser) {
+        throw new BadRequestException('This User alredy exist');
+      }
+
+      let checkRegion = await this.prisma.regions.findFirst({
+        where: { id: data.regionId },
+      });
+
+      if (!checkRegion) {
+        throw new NotFoundException('Region Not Found');
+      }
+
+      if (
+        data.role != 'ADMIN' &&
+        data.role != 'SUPER_ADMIN' &&
+        data.role != 'VIEWER_ADMIN'
+      ) {
+        throw new BadRequestException('You cannot add other roles.');
+      }
+
+      let hashPassword = bcrypt.hashSync(data.password, 7);
+      data.password = hashPassword;
+
+      let otp = totp.generate('secret' + data.phone);
+
+      // let sendOtp = await this.mailer.sendMail(
+      //   data.email,
+      //   'New Otp',
+      //   `new Otp:  ${otp}`,
+      // );
+
+      // await this.eskiz.sendSMS('Send SMS', data.phone);
+      let newUser = await this.prisma.users.create({ data });
+
+      return {
+        message:
+          'Admin added successfully',
+        Code: otp,
+      };
+    } catch (error) {}
   }
 }
