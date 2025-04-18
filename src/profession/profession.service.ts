@@ -13,6 +13,8 @@ export class ProfessionService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateProfessionDto) {
+    let { ProfessionLevel, ProfessionTool, ...body } = data;
+
     let checkProff = await this.prisma.profession.findFirst({
       where: { name_uz: data.name_uz },
     });
@@ -21,9 +23,43 @@ export class ProfessionService {
       throw new BadRequestException('This Profession alredy exist');
     }
 
+    let chechLevel = await this.prisma.level.findFirst({
+      where: { id: ProfessionLevel[0].levelId },
+    });
+
+    if (!chechLevel) {
+      throw new NotFoundException('Level Not Found');
+    }
+
+    let chechTool = await this.prisma.tool.findFirst({
+      where: { id: ProfessionTool[0].toolId },
+    });
+
+    if (!chechTool) {
+      throw new NotFoundException('Tool Not Found');
+    }
+
+    let newProfession = await this.prisma.profession.create({
+      data: { ...body },
+    });
+
+    let newProfLevel = await this.prisma.professionLevel.create({
+      data: {
+        professionId: newProfession.id,
+        levelId: ProfessionLevel[0].levelId,
+      },
+    });
+
+    let newProfTool = await this.prisma.professionTool.create({
+      data: {
+        professionId: newProfession.id,
+        toolId: ProfessionTool[0].toolId,
+      },
+    });
+
     return {
       message: 'Profession addet successfully',
-      data: await this.prisma.profession.create({ data }),
+      data: newProfession,
     };
   }
 

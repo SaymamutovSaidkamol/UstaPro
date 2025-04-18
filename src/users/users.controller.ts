@@ -70,6 +70,12 @@ export class UsersController {
     return this.usersService.register(data);
   }
 
+  
+  @Post('/add-admin')
+  AddAdmin(@Body() data: RegisterDto, @Req() req: Request) {
+    return this.usersService.addAdmin(data, req);
+  }
+
   @Post('/send-otp')
   sendOTP(@Body() phone: sendOtpDto) {
     return this.usersService.sendOtp(phone);

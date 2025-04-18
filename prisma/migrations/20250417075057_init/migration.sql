@@ -77,6 +77,7 @@ CREATE TABLE "Order" (
     "withDelivery" BOOLEAN NOT NULL DEFAULT false,
     "message" TEXT,
     "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
+    "masterId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -84,11 +85,21 @@ CREATE TABLE "Order" (
 );
 
 -- CreateTable
+CREATE TABLE "MasterProduct" (
+    "id" SERIAL NOT NULL,
+    "orderId" INTEGER NOT NULL,
+    "masterId" INTEGER NOT NULL,
+
+    CONSTRAINT "MasterProduct_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "OrderProduct" (
     "id" SERIAL NOT NULL,
     "orderId" INTEGER NOT NULL,
-    "professionId" INTEGER NOT NULL,
-    "levelId" INTEGER NOT NULL,
+    "professionId" INTEGER,
+    "toolId" INTEGER,
+    "levelId" INTEGER,
     "quantity" INTEGER NOT NULL DEFAULT 1,
     "timeUnit" "TimeUnit" NOT NULL,
     "workingTime" DOUBLE PRECISION NOT NULL,
@@ -356,22 +367,11 @@ CREATE TABLE "Partners" (
     CONSTRAINT "Partners_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "_LevelToOrderProduct" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL,
-
-    CONSTRAINT "_LevelToOrderProduct_AB_pkey" PRIMARY KEY ("A","B")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "Users_phone_key" ON "Users"("phone");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tool_code_key" ON "Tool"("code");
-
--- CreateIndex
-CREATE INDEX "_LevelToOrderProduct_B_index" ON "_LevelToOrderProduct"("B");
 
 -- AddForeignKey
 ALTER TABLE "Users" ADD CONSTRAINT "Users_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "CompanyInformation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -386,10 +386,25 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Order" ADD CONSTRAINT "Order_masterId_fkey" FOREIGN KEY ("masterId") REFERENCES "Master"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MasterProduct" ADD CONSTRAINT "MasterProduct_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MasterProduct" ADD CONSTRAINT "MasterProduct_masterId_fkey" FOREIGN KEY ("masterId") REFERENCES "Master"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OrderProduct" ADD CONSTRAINT "OrderProduct_levelId_fkey" FOREIGN KEY ("levelId") REFERENCES "Level"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -438,9 +453,3 @@ ALTER TABLE "Basket" ADD CONSTRAINT "Basket_userId_fkey" FOREIGN KEY ("userId") 
 
 -- AddForeignKey
 ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_LevelToOrderProduct" ADD CONSTRAINT "_LevelToOrderProduct_A_fkey" FOREIGN KEY ("A") REFERENCES "Level"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_LevelToOrderProduct" ADD CONSTRAINT "_LevelToOrderProduct_B_fkey" FOREIGN KEY ("B") REFERENCES "OrderProduct"("id") ON DELETE CASCADE ON UPDATE CASCADE;

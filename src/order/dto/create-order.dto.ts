@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderStatus, PaymentType } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -9,7 +11,47 @@ import {
   IsOptional,
   IsString,
   Matches,
+  ValidateNested,
 } from 'class-validator';
+import { TimeUnit } from 'src/Enums/role.enum';
+
+export class CreateOrderProductDto {
+  @IsOptional()
+  @IsNumber()
+  orderId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({ example: 1, required: false })
+  professionId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({ example: 1, required: false })
+  toolId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({ example: 1, required: false })
+  levelId?: number;
+
+  @IsNumber()
+  @ApiProperty({ description: 'Quantity', example: 1 })
+  quantity: number;
+
+  @IsEnum(TimeUnit)
+  @ApiProperty({ enum: TimeUnit, example: ['HOURLY', 'DAILY'] })
+  timeUnit: TimeUnit;
+
+  @IsNumber()
+  @ApiProperty({ example: 8 })
+  workingTime: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty({ example: 100.0 })
+  price: number;
+}
 
 export class CreateOrderDto {
   @IsNumber()
@@ -48,4 +90,12 @@ export class CreateOrderDto {
 
   @IsOptional()
   createdAt: Date = new Date();
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderProductDto)
+  @ApiProperty({
+    type: [CreateOrderProductDto]
+  })
+  orderProducts: CreateOrderProductDto[];
 }

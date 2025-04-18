@@ -11,8 +11,8 @@ import { RoleGuard } from 'src/auth/role.guard';
 export class RegionsController {
   constructor(private readonly regionsService: RegionsService) {}
 
-  // @Roles(Role.ADMIN)
-  // @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Post()
   create(@Body() createRegionDto: CreateRegionDto) {
     return this.regionsService.create(createRegionDto);
@@ -29,7 +29,7 @@ export class RegionsController {
   }
 
   
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @UseGuards(AuthGuard, RoleGuard)
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateRegionDto: UpdateRegionDto) {

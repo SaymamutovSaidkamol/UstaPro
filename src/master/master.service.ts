@@ -1,4 +1,9 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   CreateMasterDto,
   isValidUzbekPhoneNumber,
@@ -19,6 +24,7 @@ export class MasterService {
   }
   async create(data: CreateMasterDto) {
     try {
+      let { MasterProfession, ...body } = data;
       let checkMaster = await this.prisma.master.findFirst({
         where: { phoneNumber: data.phoneNumber },
       });
@@ -41,9 +47,39 @@ export class MasterService {
         throw new BadRequestException('Phone number is invalid');
       }
 
+      let checkProff = await this.prisma.profession.findFirst({
+        where: { id: MasterProfession[0].professionId },
+      });
+
+      if (!checkProff) {
+        throw new NotFoundException('Master profession Profession not found');
+      }
+
+      let checkLevel = await this.prisma.level.findFirst({
+        where: { id: MasterProfession[0].levelId },
+      });
+
+      if (!checkLevel) {
+        throw new NotFoundException('Master profession level not found');
+      }
+
+      let newMaster = await this.prisma.master.create({ data: { ...body } });
+
+      await this.prisma.masterProfession.create({
+        data: {
+          professionId: MasterProfession[0].professionId,
+          minWorkingHours: MasterProfession[0].minWorkingHours,
+          levelId: MasterProfession[0].levelId,
+          priceHourly: MasterProfession[0].priceHourly,
+          priceDaily: MasterProfession[0].priceDaily,
+          experience: MasterProfession[0].experience,
+          masterId: newMaster.id,
+        },
+      });
+
       return {
         message: 'Master added successfully',
-        data: await this.prisma.master.create({ data }),
+        data: newMaster,
       };
     } catch (error) {
       this.Error(error);

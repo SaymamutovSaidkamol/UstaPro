@@ -1,5 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { CreateProfessionToolDto } from 'src/profession/dto/create-profession.dto';
+
+export class CreateMasterProfessionDto {
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  professionId: number;
+
+  @ApiProperty({ example: 2 })
+  @IsNumber()
+  minWorkingHours: number;
+
+  @ApiProperty({ example: 2 })
+  @IsNumber()
+  levelId: number;
+
+  @ApiProperty({ example: '10000' })
+  @IsString()
+  priceHourly: string;
+
+  @ApiProperty({ example: '3000000' })
+  @IsString()
+  priceDaily: string;
+
+  @ApiProperty({ example: 23 })
+  @IsNumber()
+  experience: number;
+
+  @IsNumber()
+  masterId: number;
+}
 
 export class CreateMasterDto {
   @ApiProperty({ example: 'Jalilov Boxodir' })
@@ -32,12 +70,19 @@ export class CreateMasterDto {
 
   @ApiProperty({ example: '1' })
   @IsString()
-  userId: number
+  userId: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateMasterProfessionDto)
+  @ApiProperty({
+    type: [CreateMasterProfessionDto],
+  })
+  MasterProfession: CreateMasterProfessionDto[];
 
   @IsOptional()
   createdAt?: Date = new Date();
 }
-
 
 export function isValidUzbekPhoneNumber(phoneNumber: string): boolean {
   // Bo‘sh joylar va tirelarni olib tashlaymiz

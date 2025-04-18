@@ -49,7 +49,7 @@ import { OrderModule } from './order/order.module';
     PartnersModule,
     ProfessionToolModule,
     ProfessionLevelModule,
-    OrderModule
+    OrderModule,
     
   ],
   controllers: [AppController],
