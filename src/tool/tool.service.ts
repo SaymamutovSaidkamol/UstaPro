@@ -53,13 +53,13 @@ export class ToolService {
 
       while (true) {
         const randomNumber = Math.floor(1000 + Math.random() * 9000);
-        uniqueCode = `CODE_${randomNumber}`;
+        uniqueCode = `#CODE_${randomNumber}`;
 
         const existing = await this.prisma.tool.findUnique({
           where: { code: uniqueCode },
         });
 
-        if (!existing) break; 
+        if (!existing) break;
       }
 
       data.code = uniqueCode;
@@ -79,6 +79,7 @@ export class ToolService {
     try {
       return {
         data: await this.prisma.tool.findMany({
+          where: { isAvailable: true },
           include: { brand: true, power: true, size: true },
         }),
       };
@@ -105,87 +106,97 @@ export class ToolService {
     try {
       let checkTool = await this.prisma.tool.findFirst({ where: { id } });
 
-    if (!checkTool) {
-      throw new NotFoundException('Tool not found');
-    }
-
-    if (data.name_uz || data.name_en || data.name_ru) {
-      if (
-        (data.name_uz && data.name_ru && !data.name_en) ||
-        (data.name_uz && !data.name_ru && data.name_en) ||
-        (!data.name_uz && data.name_ru && data.name_en) ||
-        (data.name_uz && !data.name_ru && !data.name_en) ||
-        (!data.name_uz && data.name_ru && !data.name_en) ||
-        (!data.name_uz && !data.name_ru && data.name_en)
-      ) {
-        throw new BadRequestException('Error message please try again');
+      if (!checkTool) {
+        throw new NotFoundException('Tool not found');
       }
-    }
 
-    if (data.description_uz || data.description_en || data.description_ru) {
-      if (
-        (data.description_uz && data.description_ru && !data.description_en) ||
-        (data.description_uz && !data.description_ru && data.description_en) ||
-        (!data.description_uz && data.description_ru && data.description_en) ||
-        (data.description_uz && !data.description_ru && !data.description_en) ||
-        (!data.description_uz && data.description_ru && !data.description_en) ||
-        (!data.description_uz && !data.description_ru && data.description_en)
-      ) {
-        throw new BadRequestException('Error message please try again');
+      if (data.name_uz || data.name_en || data.name_ru) {
+        if (
+          (data.name_uz && data.name_ru && !data.name_en) ||
+          (data.name_uz && !data.name_ru && data.name_en) ||
+          (!data.name_uz && data.name_ru && data.name_en) ||
+          (data.name_uz && !data.name_ru && !data.name_en) ||
+          (!data.name_uz && data.name_ru && !data.name_en) ||
+          (!data.name_uz && !data.name_ru && data.name_en)
+        ) {
+          throw new BadRequestException('Error message please try again');
+        }
       }
-    }
 
-    if (data.quantity) {
-      if (data.quantity < 0) {
-        throw new BadRequestException('The wrong amount was deducted.');
+      if (data.description_uz || data.description_en || data.description_ru) {
+        if (
+          (data.description_uz &&
+            data.description_ru &&
+            !data.description_en) ||
+          (data.description_uz &&
+            !data.description_ru &&
+            data.description_en) ||
+          (!data.description_uz &&
+            data.description_ru &&
+            data.description_en) ||
+          (data.description_uz &&
+            !data.description_ru &&
+            !data.description_en) ||
+          (!data.description_uz &&
+            data.description_ru &&
+            !data.description_en) ||
+          (!data.description_uz && !data.description_ru && data.description_en)
+        ) {
+          throw new BadRequestException('Error message please try again');
+        }
       }
-    }
 
-    if (data.brandId) {
-      let checkBrand = await this.prisma.brand.findFirst({
-        where: { id: data.brandId },
-      });
-
-      if (!checkBrand) {
-        throw new NotFoundException('Brand Not Found');
+      if (data.quantity) {
+        if (data.quantity < 0) {
+          throw new BadRequestException('The wrong amount was deducted.');
+        }
       }
-    }
 
-    if (data.powerId) {
-      let checkPower = await this.prisma.power.findFirst({
-        where: { id: data.powerId },
-      });
+      if (data.brandId) {
+        let checkBrand = await this.prisma.brand.findFirst({
+          where: { id: data.brandId },
+        });
 
-      if (!checkPower) {
-        throw new NotFoundException('Power Not Found');
+        if (!checkBrand) {
+          throw new NotFoundException('Brand Not Found');
+        }
       }
-    }
 
-    if (data.sizeId) {
-      let checkSize = await this.prisma.size.findFirst({
-        where: { id: data.sizeId },
-      });
+      if (data.powerId) {
+        let checkPower = await this.prisma.power.findFirst({
+          where: { id: data.powerId },
+        });
 
-      if (!checkSize) {
-        throw new NotFoundException('Size Not Found');
+        if (!checkPower) {
+          throw new NotFoundException('Power Not Found');
+        }
       }
-    }
 
-    let toolData = { ...data };
+      if (data.sizeId) {
+        let checkSize = await this.prisma.size.findFirst({
+          where: { id: data.sizeId },
+        });
 
-    if (data.price) {
-      toolData.price = String(data.price);
-    }
+        if (!checkSize) {
+          throw new NotFoundException('Size Not Found');
+        }
+      }
 
-    return {
-      message: 'Tool changed successfully',
-      data: await this.prisma.tool.update({
-        where: { id },
-        data: toolData,
-      }),
-    };
+      let toolData = { ...data };
+
+      if (data.price) {
+        toolData.price = String(data.price);
+      }
+
+      return {
+        message: 'Tool changed successfully',
+        data: await this.prisma.tool.update({
+          where: { id },
+          data: toolData,
+        }),
+      };
     } catch (error) {
-      this.Error(error)
+      this.Error(error);
     }
   }
 
@@ -206,52 +217,49 @@ export class ToolService {
     }
   }
 
-    async query(dto: QueryToolDto, req: Request) {
-      try {
-        const {
-          name_uz,
-          name_en,
-          name_ru,
-          price,
-          quantity,
-          code,
-          brandId,
-          powerId,
-          sizeId,
-          page = 1,
-          limit = 10,
-          sortBy = 'createdAt',
-          order = 'desc',
-        } = dto;
-  
-        const skip = (page - 1) * limit;
-  
-        return this.prisma.tool.findMany({
-          where: {
-            name_uz: name_uz
-              ? { contains: name_uz, mode: 'insensitive' }
-              : undefined,
-            name_en: name_en
-              ? { contains: name_uz, mode: 'insensitive' }
-              : undefined,
-            name_ru: name_ru
-              ? { contains: name_uz, mode: 'insensitive' }
-              : undefined,
-            price: String(price),
-            quantity: Number(quantity),
-            code: String(code),
-            brandId: Number(brandId),
-            powerId: Number(powerId),
-            sizeId: Number(sizeId),
-          },
-          orderBy: {
-            [sortBy]: order,
-          },
-          skip,
-          take: limit,
-        });
-      } catch (error) {
-        this.Error(error);
-      }
+  async query(dto: QueryToolDto, req: Request) {
+    try {
+      const {
+        name_uz,
+        name_en,
+        name_ru,
+        price,
+        quantity,
+        code,
+        brandId,
+        powerId,
+        sizeId,
+        page,
+        limit,
+        sortBy = 'createdAt',
+        order = 'desc',
+      } = dto;
+
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10);
+      const take = parseInt(String(limit ?? 10), 10);
+
+      const where: any = {
+        ...(name_uz && { name_uz: { contains: name_uz, mode: 'insensitive' } }),
+        ...(name_en && { name_en: { contains: name_en, mode: 'insensitive' } }),
+        ...(name_ru && { name_ru: { contains: name_ru, mode: 'insensitive' } }),
+        ...(price && { price: Number(price) }),
+        ...(quantity && { quantity: Number(quantity) }),
+        ...(code && { code: { contains: code, mode: 'insensitive' } }),
+        ...(brandId && { brandId: Number(brandId) }),
+        ...(powerId && { powerId: Number(powerId) }),
+        ...(sizeId && { sizeId: Number(sizeId) }),
+      };
+
+      return this.prisma.tool.findMany({
+        where,
+        orderBy: {
+          [sortBy || 'createdAt']: order || 'desc',
+        },
+        skip,
+        take,
+      });
+    } catch (error) {
+      this.Error(error);
     }
+  }
 }

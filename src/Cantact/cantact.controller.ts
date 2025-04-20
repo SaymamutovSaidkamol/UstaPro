@@ -21,7 +21,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class CantactController {
   constructor(private readonly infoService: CantactService) {}
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/query')
   @ApiOperation({
     summary: 'Masterlarni qidirish',
@@ -40,23 +40,27 @@ export class CantactController {
     return this.infoService.create(data, req);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.infoService.findAll();
+  findAll(@Req() req: Request) {
+    return this.infoService.findAll(req);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.infoService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.infoService.findOne(+id, req);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() data: UpdateCantactDto) {
-    return this.infoService.update(+id, data);
+  update(@Param('id') id: string, @Body() data: UpdateCantactDto, @Req() req: Request) {
+    return this.infoService.update(+id, data, req);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.infoService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: Request) {
+    return this.infoService.remove(+id, req);
   }
 }

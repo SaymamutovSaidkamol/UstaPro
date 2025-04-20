@@ -26,6 +26,12 @@ export class BasketController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('my-basket')
+  MyBasket(@Req() req: Request) {
+    return this.basketService.myBasket(req);
+  }
+
+  @UseGuards(AuthGuard)
   @Get()
   findAll(@Req() req: Request) {
     return this.basketService.findAll(req);

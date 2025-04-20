@@ -25,7 +25,8 @@ import { QueryMasterDto } from './dto/query-master.dto';
 export class MasterController {
   constructor(private readonly masterService: MasterService) {}
 
-  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER_ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Get('/query')
   @ApiOperation({
     summary: 'Masterlarni qidirish',
@@ -38,6 +39,12 @@ export class MasterController {
     return this.masterService.query(query, req);
   }
 
+  @UseGuards(AuthGuard)
+  @Get('get-me')
+  GetMe(@Req() req: Request) {
+    return this.masterService.getMe(req);
+  }
+
   @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER_ADMIN)
   @UseGuards(AuthGuard, RoleGuard)
   @Get()
@@ -45,18 +52,16 @@ export class MasterController {
     return this.masterService.findAll();
   }
 
-  @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.VIEWER_ADMIN)
-  @UseGuards(AuthGuard, RoleGuard)
+  @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.masterService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.masterService.findOne(+id, req);
   }
 
-  @Roles(Role.ADMIN, Role.USER_FIZ, Role.USER_YUR)
-  @UseGuards(AuthGuard, RoleGuard)
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createMasterDto: CreateMasterDto) {
-    return this.masterService.create(createMasterDto);
+  create(@Body() createMasterDto: CreateMasterDto, @Req() req: Request) {
+    return this.masterService.create(createMasterDto, req);
   }
 
   @UseGuards(AuthGuard)

@@ -25,21 +25,6 @@ export class QueryFaqDto {
   @IsString()
   question_en?: string;
 
-  @ApiPropertyOptional({ example: 'alik' })
-  @IsOptional()
-  @IsString()
-  answer_uz?: string;
-
-  @ApiPropertyOptional({ example: 'alik' })
-  @IsOptional()
-  @IsString()
-  answer_ru?: string;
-
-  @ApiPropertyOptional({ example: 'alik' })
-  @IsOptional()
-  @IsString()
-  answer_en?: string;
-
   @ApiPropertyOptional({ example: 1 })
   @IsOptional()
   @Type(() => Number)

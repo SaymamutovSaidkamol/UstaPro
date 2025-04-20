@@ -17,6 +17,7 @@ import {
   VerifyDto,
   sendOtpDto,
   resetPasswordDto,
+  AddAdminDto,
 } from './dto/create-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
@@ -89,7 +90,7 @@ export class UsersController {
 
   
   @Post('/add-admin')
-  AddAdmin(@Body() data: RegisterDto, @Req() req: Request) {
+  AddAdmin(@Body() data: AddAdminDto, @Req() req: Request) {
     return this.usersService.addAdmin(data, req);
   }
 

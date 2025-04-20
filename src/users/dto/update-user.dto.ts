@@ -5,12 +5,13 @@ import { UserStatus } from 'src/Enums/role.enum';
 
 export class UpdateUserForAdminDto {
   @ApiProperty({
-    example: ['VIEWER_ADMIN', 'USER_FIZ', 'USER_YUR', 'ADMIN', 'SUPERADMIN'],
+    example: Role.ADMIN,
+    description: `${Role.ADMIN}, ${Role.MASTER}, ${Role.SUPER_ADMIN}, ${Role.USER_FIZ}, ${Role.USER_YUR}, ${Role.VIEWER_ADMIN}`,
   })
   @IsString()
   role?: Role;
 
-  @ApiProperty({ example: ['ACTIVE', 'INACTIVE'] })
+  @ApiProperty({ example: UserStatus.ACTIVE })
   @IsString()
   status?: UserStatus;
 }

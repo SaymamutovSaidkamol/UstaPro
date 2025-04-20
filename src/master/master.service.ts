@@ -22,8 +22,9 @@ export class MasterService {
     }
     throw new BadRequestException(error.message);
   }
-  async create(data: CreateMasterDto) {
+  async create(data: CreateMasterDto, req: Request) {
     try {
+      data.userId = req['user'].userId;
       let { MasterProfession, ...body } = data;
       let checkMaster = await this.prisma.master.findFirst({
         where: { phoneNumber: data.phoneNumber },
@@ -90,7 +91,11 @@ export class MasterService {
     try {
       return {
         data: await this.prisma.master.findMany({
-          include: { masterProfession: true },
+          include: {
+            masterProfession: true,
+            MasterProduct: true,
+            masterReiting: true,
+          },
         }),
       };
     } catch (error) {
@@ -98,10 +103,15 @@ export class MasterService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req: Request) {
     try {
       let checkMaster = await this.prisma.master.findFirst({
-        where: { id },
+        where: { id, userId: req['user'].userId },
+        include: {
+          masterProfession: true,
+          MasterProduct: true,
+          masterReiting: true,
+        },
       });
 
       if (checkMaster) {
@@ -116,16 +126,24 @@ export class MasterService {
 
   async update(id: number, data: UpdateMasterDto, req: Request) {
     try {
+      let checkUser = await this.prisma.users.findFirst({
+        where: { id: req['user'].userId },
+      });
+
+      if (!checkUser) {
+        throw new NotFoundException('User not found');
+      }
+
       let checkMaster = await this.prisma.master.findFirst({
         where: { id },
       });
 
-      if (checkMaster) {
+      if (!checkMaster) {
         throw new BadRequestException('Master Not Found');
       }
 
       if (
-        req['user'].id != id &&
+        req['user'].userId != checkMaster.userId &&
         req['user'].role != 'ADMIN' &&
         req['user'].role != 'SUPERADMIN'
       ) {
@@ -136,11 +154,18 @@ export class MasterService {
 
       if (data.phoneNumber) {
         isValidUzbekPhoneNumber(data.phoneNumber);
+
+        if (!isValidUzbekPhoneNumber) {
+          throw new BadRequestException('Phone number invalid (+998941234567)');
+        }
       }
 
       return {
         message: 'Master changet saccessfully',
-        data: await this.prisma.master.update({ where: { id }, data }),
+        data: await this.prisma.master.update({
+          where: { id, userId: req['user'].userId },
+          data,
+        }),
       };
     } catch (error) {
       this.Error(error);
@@ -149,15 +174,26 @@ export class MasterService {
 
   async remove(id: number, req: Request) {
     try {
+      let checkUser = await this.prisma.users.findFirst({
+        where: { id: req['user'].userId },
+      });
+
+      if (!checkUser) {
+        throw new NotFoundException('User not found');
+      }
+
       let checkMaster = await this.prisma.master.findFirst({
         where: { id },
       });
 
-      if (checkMaster) {
+      if (!checkMaster) {
         throw new BadRequestException('Master Not Found');
       }
 
-      if (req['user'].id != id && req['user'].role != 'ADMIN') {
+      if (
+        req['user'].userId != checkMaster.userId &&
+        req['user'].role != 'ADMIN'
+      ) {
         throw new BadRequestException(
           "Sorry, you are infringing on others' information.",
         );
@@ -177,34 +213,56 @@ export class MasterService {
       const {
         fullName,
         phoneNumber,
-        isActive,
         userId,
-        page = 1,
-        limit = 10,
+        page,
+        limit,
         sortBy = 'createdAt',
         order = 'desc',
       } = dto;
 
-      const skip = (page - 1) * limit;
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10);
+      const take = parseInt(String(limit ?? 10), 10);
 
-      // const parsedIsActive = isActive === 'true' ? true : isActive === 'false' ? false : undefined;
+      const where: any = {
+        ...(fullName && {
+          fullName: { contains: fullName, mode: 'insensitive' },
+        }),
+        ...(phoneNumber && {
+          phoneNumber: { contains: phoneNumber, mode: 'insensitive' },
+        }),
+        ...(userId && { userId: Number(userId) }),
+      };
 
       return this.prisma.master.findMany({
-        where: {
-          fullName: fullName
-            ? { contains: fullName, mode: 'insensitive' }
-            : undefined,
-          phoneNumber: phoneNumber ? { contains: phoneNumber } : undefined,
-          isActive: Boolean(isActive),
-          // isActive,
-          userId: Number(userId),
-        },
+        where,
         orderBy: {
-          [sortBy]: order,
+          [sortBy || 'createdAt']: order || 'desc',
         },
         skip,
-        take: limit,
+        take,
       });
+    } catch (error) {
+      this.Error(error);
+    }
+  }
+
+  async getMe(req: Request) {
+    try {
+      let userId = req['user'].userId;
+
+      let checkUser = await this.prisma.users.findFirst({
+        where: { id: userId },
+      });
+
+      if (!checkUser) {
+        throw new NotFoundException('User not found Or Token invalid');
+      }
+
+      return {
+        data: await this.prisma.master.findFirst({
+          where: { userId }
+        }),
+      };
     } catch (error) {
       this.Error(error);
     }

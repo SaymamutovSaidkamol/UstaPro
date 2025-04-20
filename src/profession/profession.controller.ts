@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { ProfessionService } from './profession.service';
 import { CreateProfessionDto } from './dto/create-profession.dto';
 import { UpdateProfessionDto } from './dto/update-profession.dto';
@@ -13,21 +24,19 @@ import { QueryProfessionDto } from './dto/query-profession.dto';
 export class ProfessionController {
   constructor(private readonly professionService: ProfessionService) {}
 
-  
-    // @UseGuards(AuthGuard)
-    @Get('/query')
-    @ApiOperation({
-      summary: 'Professionlarni qidirish',
-      description:
-        'Berilgan parametrlar bo‘yicha Professionlarni filterlash, sortlash, pagination',
-    })
-    @ApiResponse({ status: 200, description: 'Muvaffaqiyatli bajarildi' })
-    @ApiResponse({ status: 400, description: 'Noto‘g‘ri so‘rov' })
-    query(@Query() query: QueryProfessionDto, @Req() req: Request) {
-      return this.professionService.query(query, req);
-    }
+  @UseGuards(AuthGuard)
+  @Get('/query')
+  @ApiOperation({
+    summary: 'Professionlarni qidirish',
+    description:
+      'Berilgan parametrlar bo‘yicha Professionlarni filterlash, sortlash, pagination',
+  })
+  @ApiResponse({ status: 200, description: 'Muvaffaqiyatli bajarildi' })
+  @ApiResponse({ status: 400, description: 'Noto‘g‘ri so‘rov' })
+  query(@Query() query: QueryProfessionDto, @Req() req: Request) {
+    return this.professionService.query(query, req);
+  }
 
-  
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RoleGuard)
   @Post()
@@ -35,11 +44,13 @@ export class ProfessionController {
     return this.professionService.create(createProfessionDto);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.professionService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.professionService.findOne(+id);
@@ -48,10 +59,13 @@ export class ProfessionController {
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @UseGuards(AuthGuard, RoleGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfessionDto: UpdateProfessionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateProfessionDto: UpdateProfessionDto,
+  ) {
     return this.professionService.update(+id, updateProfessionDto);
   }
-  
+
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RoleGuard)
   @Delete(':id')

@@ -25,7 +25,7 @@ import { QueryLevelDto } from './dto/level-query.dto';
 export class LevelController {
   constructor(private readonly levelService: LevelService) {}
 
-    // @UseGuards(AuthGuard)
+    @UseGuards(AuthGuard)
     @Get('/query')
     @ApiOperation({
       summary: 'Levellarni qidirish',
@@ -38,34 +38,34 @@ export class LevelController {
       return this.levelService.query(query, req);
     }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.levelService.findAll();
   }
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.levelService.findOne(+id);
   }
-  // @Roles(Role.ADMIN)
-  // @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Post()
   create(@Body() createLevelDto: CreateLevelDto) {
     return this.levelService.create(createLevelDto);
   }
 
 
-  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  // @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLevelDto: UpdateLevelDto) {
     return this.levelService.update(+id, updateLevelDto);
   }
 
-  // @Roles(Role.ADMIN, Role.SUPER_ADMIN)
-  // @UseGuards(AuthGuard, RoleGuard)
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+  @UseGuards(AuthGuard, RoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.levelService.remove(+id);

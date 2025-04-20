@@ -5,12 +5,10 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
-  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  Matches,
   ValidateNested,
 } from 'class-validator';
 import { TimeUnit } from 'src/Enums/role.enum';
@@ -67,7 +65,7 @@ export class CreateOrderDto {
 
   @ApiProperty({ example: 50000 })
   @IsNumber()
-  totalPrice: number;
+  totalPrice: number; 
 
   @ApiProperty({ example: false })
   @IsBoolean()

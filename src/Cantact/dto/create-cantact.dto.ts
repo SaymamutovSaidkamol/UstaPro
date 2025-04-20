@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreateCantactDto {
-  @ApiProperty({ example: 1 })
   @IsNumber()
   userId: number;
 

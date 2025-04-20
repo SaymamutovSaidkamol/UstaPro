@@ -120,31 +120,28 @@ export class PowerService {
         name_uz,
         name_ru,
         name_en,
-        page = 1,
-        limit = 10,
+        page,
+        limit,
         sortBy = 'createdAt',
         order = 'desc',
       } = dto;
 
-      const skip = (page - 1) * limit;
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10);
+      const take = parseInt(String(limit ?? 10), 10);
+
+      const where: any = {
+        ...(name_uz && { name_uz: { contains: name_uz, mode: 'insensitive' } }),
+        ...(name_en && { name_en: { contains: name_en, mode: 'insensitive' } }),
+        ...(name_ru && { name_ru: { contains: name_ru, mode: 'insensitive' } }),
+      };
 
       return this.prisma.power.findMany({
-        where: {
-          name_uz: name_uz
-            ? { contains: name_uz, mode: 'insensitive' }
-            : undefined,
-          name_ru: name_ru
-            ? { contains: name_ru, mode: 'insensitive' }
-            : undefined,
-          name_en: name_en
-            ? { contains: name_en, mode: 'insensitive' }
-            : undefined,
-        },
+        where,
         orderBy: {
-          [sortBy]: order,
+          [sortBy || 'createdAt']: order || 'desc',
         },
         skip,
-        take: limit,
+        take,
       });
     } catch (error) {
       this.Error(error);

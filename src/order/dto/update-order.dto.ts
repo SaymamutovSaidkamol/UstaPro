@@ -1,24 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderStatus, PaymentType } from '@prisma/client';
+import { OrderStatus } from '@prisma/client';
 import {
-  IsBoolean,
+  IsArray,
   IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
   IsOptional,
-  IsString,
-  Matches,
 } from 'class-validator';
 
 export class UpdateOrderDto {
-  @ApiProperty({ example: '[PENDING, ACCEPTED' })
-  @IsString()
+  @ApiProperty({ example: OrderStatus.ACCEPTED })
+  @IsEnum(OrderStatus)
   status?: OrderStatus;
 
   @ApiProperty({ example: 1 })
-  @IsNumber()
-  masterId?: number;
+  @IsArray()
+  masterId?: number[];
 
   @IsOptional()
   updatedAt: Date = new Date();

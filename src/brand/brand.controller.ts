@@ -24,7 +24,7 @@ import { Role } from 'src/Enums/role.enum';
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/query')
   @ApiOperation({
     summary: 'Masterlarni qidirish',

@@ -94,25 +94,28 @@ export class InfoService {
         email,
         links,
         phone,
-        page = 1,
-        limit = 10,
+        page,
+        limit,
         sortBy = 'createdAt',
         order = 'desc',
       } = dto;
 
-      const skip = (page - 1) * limit;
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10); 
+      const take = parseInt(String(limit ?? 10), 10); 
 
-      return this.prisma.brand.findMany({
-        where: {
-          name_uz: email ? { contains: email, mode: 'insensitive' } : undefined,
-          name_ru: links ? { contains: links, mode: 'insensitive' } : undefined,
-          name_en: phone ? { contains: phone, mode: 'insensitive' } : undefined,
-        },
+      const where: any = {
+        ...(email && { email: { contains: email, mode: 'insensitive' } }),
+        ...(links && { links: { equals: links } }),
+        ...(phone && { phone: { hasSome: phone } }),
+      };
+
+      return this.prisma.info.findMany({
+        where,
         orderBy: {
-          [sortBy]: order,
+          [sortBy || 'createdAt']: order || 'desc',
         },
         skip,
-        take: limit,
+        take,
       });
     } catch (error) {
       this.Error(error);
