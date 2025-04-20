@@ -20,43 +20,62 @@ export class BasketService {
     throw new BadRequestException(error.message);
   }
 
-  async create(data: CreateBasketDto, req: Request) {
+  async create(dto: CreateBasketDto, req: Request) {
     try {
-      data.userId = req['user'].id;
-
-      let checkUser = await this.prisma.users.findFirst({
-        where: { id: data.userId },
-      });
-
-      if (!checkUser) {
-        throw new NotFoundException('User Not found');
+      let userId = req['user'].userId;
+      if (!dto.professionId && !dto.toolId) {
+        throw new BadRequestException(
+          'Either professionId or toolId must be provided.',
+        );
       }
 
-      let checkProf = await this.prisma.profession.findFirst({
-        where: { id: data.professionId },
-      });
-
-      if (!checkProf) {
-        throw new NotFoundException('Profession Not found');
+      if (dto.professionId && dto.toolId) {
+        throw new BadRequestException(
+          'Only one of professionId or toolId can be provided.',
+        );
       }
 
-      let checkTool = await this.prisma.tool.findFirst({
-        where: { id: data.toolId },
-      });
-
-      if (!checkTool) {
-        throw new NotFoundException('Tool Not found');
+      if (dto.professionId) {
+        const profession = await this.prisma.profession.findUnique({
+          where: { id: dto.professionId },
+        });
+        if (!profession) {
+          throw new BadRequestException('Invalid professionId.');
+        }
       }
 
-      let checkLivel = await this.prisma.level.findFirst({
-        where: { id: data.livelId },
-      });
-
-      if (!checkLivel) {
-        throw new NotFoundException('Livel Not found');
+      if (dto.toolId) {
+        const tool = await this.prisma.tool.findUnique({
+          where: { id: dto.toolId },
+        });
+        if (!tool) {
+          throw new BadRequestException('Invalid toolId.');
+        }
       }
 
-      return { data: await this.prisma.basket.create({ data }) };
+      if (dto.livelId) {
+        const level = await this.prisma.level.findUnique({
+          where: { id: dto.livelId },
+        });
+        if (!level) {
+          throw new BadRequestException('Invalid livelId.');
+        }
+      }
+
+      const basket = await this.prisma.basket.create({
+        data: {
+          userId: userId,
+          professionId: dto.professionId,
+          toolId: dto.toolId,
+          livelId: dto.livelId,
+          quantity: dto.quantity,
+          timeUnit: dto.timeUnit,
+          workingTime: dto.workingTime,
+          price: dto.price,
+        },
+      });
+
+      return { data: basket };
     } catch (error) {
       this.Error(error);
     }
@@ -66,7 +85,15 @@ export class BasketService {
     try {
       let id = req['user'].id;
 
-      let data = await this.prisma.basket.findFirst({ where: { userId: id } });
+      let data = await this.prisma.basket.findFirst({
+        where: { userId: id },
+        include: {
+          user: { select: { fullName: true, phone: true, role: true } },
+          profession: true,
+          tool: true,
+          level: true,
+        },
+      });
 
       return { data };
     } catch (error) {
@@ -86,6 +113,33 @@ export class BasketService {
         throw new BadRequestException(
           "Sorry, you can't change other people's information.",
         );
+      }
+
+      if (data.professionId) {
+        const profession = await this.prisma.profession.findUnique({
+          where: { id: data.professionId },
+        });
+        if (!profession) {
+          throw new BadRequestException('Profession not found');
+        }
+      }
+
+      if (data.toolId) {
+        const tool = await this.prisma.tool.findUnique({
+          where: { id: data.toolId },
+        });
+        if (!tool) {
+          throw new BadRequestException('Tool not found');
+        }
+      }
+
+      if (data.levelId) {
+        const level = await this.prisma.level.findUnique({
+          where: { id: data.levelId },
+        });
+        if (!level) {
+          throw new BadRequestException('Level not found');
+        }
       }
 
       return {
@@ -114,6 +168,27 @@ export class BasketService {
       return {
         message: 'Basket deleted successfully!',
         data: await this.prisma.basket.delete({ where: { id } }),
+      };
+    } catch (error) {
+      this.Error(error);
+    }
+  }
+
+  async myBasket(req: Request) {
+    try {
+      let checkUser = await this.prisma.users.findFirst({
+        where: { id: req['user'].userId },
+      });
+
+      if (!checkUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      return {
+        message: 'My Basket',
+        data: await this.prisma.basket.findMany({
+          where: { userId: req['user'].userId },
+        }),
       };
     } catch (error) {
       this.Error(error);

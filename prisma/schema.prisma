@@ -29,6 +29,7 @@ model Users {
   order   Order[]
   basket  Basket[]
   cantact Contact[]
+  comment Comment[]
 }
 
 model CompanyInformation {
@@ -134,17 +135,28 @@ model OrderTool {
 }
 
 model Comment {
-  id         Int    @id @default(autoincrement())
-  message_uz String
-  message_ru String
-  message_en String
-  stars      Float
-  orderId    Int
+  id      Int    @id @default(autoincrement())
+  message String
+  userId  Int
+  orderId Int
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  users Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  masterReiting MasterReiting[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model MasterReiting {
+  id        Int   @id @default(autoincrement())
+  star      Float
+  masterId  Int
+  commentId Int
+
+  master  Master  @relation(fields: [masterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Brand {
@@ -194,9 +206,9 @@ model Tool {
   price          String
   quantity       Int
   code           String  @unique
-  brandId        Int
-  powerId        Int
-  sizeId         Int
+  brandId        Int?
+  powerId        Int?
+  sizeId         Int?
   img            String
   isAvailable    Boolean @default(true)
 
@@ -204,9 +216,9 @@ model Tool {
   ordeeTools      OrderTool[]
   basket          Basket[]
 
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  power Power @relation(fields: [powerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  size  Size  @relation(fields: [sizeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  brand Brand? @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  power Power? @relation(fields: [powerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  size  Size?  @relation(fields: [sizeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
@@ -227,6 +239,7 @@ model Master {
   masterProfession MasterProfession[]
   order            Order[]
   MasterProduct    MasterProduct[]
+  masterReiting    MasterReiting[]
 
   user Users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -317,18 +330,18 @@ model ProfessionTool {
 model Basket {
   id           Int      @id @default(autoincrement())
   userId       Int
-  professionId Int
-  toolId       Int
-  livelId      Int
-  count        Int
+  professionId Int?
+  toolId       Int?
+  livelId      Int?
+  quantity     Int      @default(1)
   timeUnit     TimeUnit
   workingTime  Int
-  totalPrice   Int
+  price        Int
 
-  user       Users      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  profession Profession @relation(fields: [professionId], references: [id])
-  tool       Tool       @relation(fields: [toolId], references: [id])
-  level      Level      @relation(fields: [livelId], references: [id])
+  user       Users       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profession Profession? @relation(fields: [professionId], references: [id])
+  tool       Tool?       @relation(fields: [toolId], references: [id])
+  level      Level?      @relation(fields: [livelId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

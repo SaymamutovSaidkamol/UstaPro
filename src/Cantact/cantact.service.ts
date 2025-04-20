@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { link } from 'fs';
 import { QueryCantactDto } from './dto/cantact-query.dto';
 import { CreateCantactDto } from './dto/create-cantact.dto';
+import { isValidUzbekPhoneNumber } from 'src/master/dto/create-master.dto';
 
 @Injectable()
 export class CantactService {
@@ -23,7 +24,7 @@ export class CantactService {
 
   async create(data: CreateCantactDto, req: Request) {
     try {
-      data.userId = req['user'].id;
+      data.userId = req['user'].userId;
 
       let checkUser = await this.prisma.users.findFirst({
         where: { id: data.userId },
@@ -32,6 +33,12 @@ export class CantactService {
       if (!checkUser) {
         throw new NotFoundException('User Not Found');
       }
+
+      if(!isValidUzbekPhoneNumber(data.phone)){
+        throw new BadRequestException("Invalid phone number, example(+998941234567)")
+      }
+
+      
 
       return {
         message: 'New Cantact Added successfully!',
@@ -42,20 +49,41 @@ export class CantactService {
     }
   }
 
-  async findAll() {
+  async findAll(req: Request) {
     try {
-      return { data: await this.prisma.contact.findMany() };
+      let checkUser = await this.prisma.users.findFirst({
+        where: { id: req['user'].userId },
+      });
+
+      if (!checkUser) {
+        throw new NotFoundException('User not found');
+      }
+      return {
+        data: await this.prisma.contact.findMany({
+          where: { userId: req['user'].userId },
+        }),
+      };
     } catch (error) {
       this.Error(error);
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req: Request) {
     try {
-      let chekInfo = await this.prisma.contact.findFirst({ where: { id } });
+      let chekInfo = await this.prisma.contact.findFirst({
+        where: { id, userId: req['user'].userId },
+      });
 
       if (!chekInfo) {
         throw new NotFoundException('Cantact not found');
+      }
+
+      let checkUser = await this.prisma.users.findFirst({
+        where: { id: req['user'].userId },
+      });
+
+      if (!checkUser) {
+        throw new NotFoundException('User not found');
       }
 
       return { data: chekInfo };
@@ -64,12 +92,21 @@ export class CantactService {
     }
   }
 
-  async update(id: number, data: UpdateCantactDto) {
+  async update(id: number, data: UpdateCantactDto, req: Request) {
     try {
       let chekInfo = await this.prisma.contact.findFirst({ where: { id } });
 
       if (!chekInfo) {
         throw new NotFoundException('Cantact not found');
+      }
+
+      if (
+        req['user'].userId != chekInfo.userId &&
+        req['user'].role != 'ADMIN'
+      ) {
+        throw new BadRequestException(
+          "You cannot change other people's information.",
+        );
       }
 
       return {
@@ -81,12 +118,21 @@ export class CantactService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
     try {
       let chekInfo = await this.prisma.contact.findFirst({ where: { id } });
 
       if (!chekInfo) {
         throw new NotFoundException('Cantact not found');
+      }
+
+      if (
+        req['user'].userId != chekInfo.userId &&
+        req['user'].role != 'ADMIN'
+      ) {
+        throw new BadRequestException(
+          "You cannot change other people's information.",
+        );
       }
 
       return {
@@ -106,29 +152,30 @@ export class CantactService {
         phone,
         address,
         message,
-        page = 1,
-        limit = 10,
+        page,
+        limit,
         sortBy = 'createdAt',
         order = 'desc',
       } = dto;
 
-      const skip = (page - 1) * limit;
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10);
+      const take = parseInt(String(limit ?? 10), 10);
+
+      const where: any = {
+        ...(userId && { userId: Number(userId) }),
+        ...(full_name && { full_name: { contains: full_name, mode: 'insensitive' } }),
+        ...(phone && { phone: { contains: phone, mode: 'insensitive' } }),
+        ...(address && { address: { contains: address, mode: 'insensitive' } }),
+        ...(message && { message: { contains: message, mode: 'insensitive' } }),
+      };
 
       return this.prisma.contact.findMany({
-        where: {
-          userId: Number(userId),
-          full_name: full_name
-            ? { contains: full_name, mode: 'insensitive' }
-            : undefined,
-          address: address
-            ? { contains: address, mode: 'insensitive' }
-            : undefined,
-        },
+        where,
         orderBy: {
           [sortBy]: order,
         },
         skip,
-        take: limit,
+        take,
       });
     } catch (error) {
       this.Error(error);

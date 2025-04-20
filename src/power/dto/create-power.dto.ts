@@ -2,15 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
 export class CreatePowerDto {
-  @ApiProperty({ example: 'Yosh mutaxassi' })
+  @ApiProperty({ example: 'Elektr quvvati' })
   @IsString()
   name_uz: string;
 
-  @ApiProperty({ example: 'Младший специалист' })
+  @ApiProperty({ example: 'Электроэнергия' })
   @IsString()
   name_ru: string;
 
-  @ApiProperty({ example: 'Junior' })
+  @ApiProperty({ example: 'Electric power' })
   @IsString()
   name_en: string;
 

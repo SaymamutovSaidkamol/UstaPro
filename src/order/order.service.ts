@@ -8,7 +8,11 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { QueryOrderDto } from './dto/query-order.dto';
+import axios from 'axios';
+import { config } from 'dotenv';
 
+config();
 @Injectable()
 export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
@@ -21,6 +25,8 @@ export class OrderService {
   }
   async create(data: CreateOrderDto, req: Request) {
     try {
+      data.userId = req['user'].userId;
+
       const { orderProducts, ...body } = data;
 
       if (!orderProducts?.length) {
@@ -32,12 +38,12 @@ export class OrderService {
       for (const product of orderProducts) {
         if (product.professionId && product.toolId) {
           throw new BadRequestException(
-            'Only one of professionId or toolId can be provided per order product.',
+            'Please select either a profession or a tool',
           );
         }
         if (!product.professionId && !product.toolId) {
           throw new BadRequestException(
-            'Either professionId or toolId must be provided for each order product.',
+            'Please select either a profession or a tool',
           );
         }
       }
@@ -88,10 +94,7 @@ export class OrderService {
       }
 
       const order = await this.prisma.order.create({
-        data: {
-          ...body,
-          userId: req['user'].userId,
-        },
+        data: body,
       });
       for (const op of orderProducts) {
         if (op.toolId) {
@@ -133,6 +136,12 @@ export class OrderService {
 
       await this.prisma.orderProduct.createMany({ data: orderProductData });
 
+      await this.sendTelegramMessage(
+        `<b>📦 Yangi Buyurtma</b>\n\n🧑‍💻 Foydalanuvchi: ${req['user'].userId}\n📍 Manzil: ${order.adress}\n💵 Narxi: ${order.totalPrice} so'm\n📱 To'lov usuli: ${order.paymentType}\n📅 Sana: ${order.date.toLocaleDateString()}`,
+      );
+
+      await this.prisma.basket.deleteMany({ where: { userId: body.userId } });
+
       return { message: 'Order created successfully!', data: order };
     } catch (error) {
       this.Error(error);
@@ -159,6 +168,7 @@ export class OrderService {
             orderTool: true,
             orderProduct: true,
             comment: true,
+            master: { select: { fullName: true, img: true } },
           },
         }),
       };
@@ -169,12 +179,6 @@ export class OrderService {
 
   async findOne(id: number, req: Request) {
     try {
-      let checkFaq = await this.prisma.order.findFirst({ where: { id } });
-
-      if (!checkFaq) {
-        throw new NotFoundException('Order not found');
-      }
-
       let UserId = req['user'].id;
 
       let checkUser = await this.prisma.users.findFirst({
@@ -185,16 +189,23 @@ export class OrderService {
         throw new NotFoundException('User not found or token invalid');
       }
 
+      let checkFaq = await this.prisma.order.findFirst({
+        where: { id, userId: req['user'].userId },
+        include: {
+          user: { select: { fullName: true, phone: true, role: true } },
+          orderTool: true,
+          orderProduct: true,
+          comment: true,
+          master: { select: { fullName: true, img: true } },
+        },
+      });
+
+      if (!checkFaq) {
+        throw new NotFoundException('Order not found');
+      }
+
       return {
-        data: await this.prisma.order.findFirst({
-          where: { id, userId: UserId },
-          include: {
-            user: { select: { fullName: true, phone: true, role: true } },
-            orderTool: true,
-            orderProduct: true,
-            comment: true,
-          },
-        }),
+        data: checkFaq,
       };
     } catch (error) {
       this.Error(error);
@@ -218,23 +229,30 @@ export class OrderService {
       if (!checkUser) {
         throw new NotFoundException('User not found or token invalid');
       }
-      let checkMaster = await this.prisma.master.findFirst({
-        where: { id: data.masterId },
-      });
 
-      if (!checkMaster) {
-        throw new NotFoundException('Master not found ');
+      let { masterId, status } = data;
+
+      if (masterId?.length) {
+        const validMasters = await this.prisma.master.findMany({
+          where: { id: { in: masterId } },
+        });
+        if (validMasters.length !== masterId.length) {
+          throw new BadRequestException('Master id not found');
+        }
+
+        await this.prisma.masterProduct.deleteMany({ where: { orderId: id } });
+        const orderMasterData = masterId.map((masterId) => ({
+          orderId: checkFaq.id,
+          masterId: masterId,
+        }));
+        await this.prisma.masterProduct.createMany({ data: orderMasterData });
       }
-
-      await this.prisma.masterProduct.create({
-        data: { orderId: id, masterId: data.masterId! },
-      });
 
       return {
         message: 'Order changet succesfully',
         data: await this.prisma.order.update({
           where: { id },
-          data: { status: 'ACCEPTED' },
+          data: { status },
         }),
       };
     } catch (error) {
@@ -270,6 +288,84 @@ export class OrderService {
       };
     } catch (error) {
       this.Error(error);
+    }
+  }
+
+  async query(dto: QueryOrderDto, req: Request) {
+    try {
+      const {
+        adress,
+        date,
+        totalPrice,
+        paymentType,
+        message,
+        status,
+        page,
+        limit,
+        sortBy = 'createdAt',
+        order = 'desc',
+      } = dto;
+
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10);
+      const take = parseInt(String(limit ?? 10), 10);
+
+      const where: any = {
+        ...(adress && { adress: { contains: adress, mode: 'insensitive' } }),
+        ...(date && { date: { equals: new Date(date) } }),
+        ...(totalPrice && { totalPrice: Number(totalPrice) }),
+        ...(paymentType && { paymentType }),
+        ...(message && { message: { contains: message, mode: 'insensitive' } }),
+        ...(status && { status }),
+      };
+
+      return this.prisma.order.findMany({
+        where,
+        orderBy: {
+          [sortBy]: order,
+        },
+        skip,
+        take,
+      });
+    } catch (error) {
+      this.Error(error);
+    }
+  }
+
+  async myOrder(req: Request) {
+    try {
+      let checkUser = await this.prisma.users.findFirst({
+        where: { id: req['user'].userId },
+      });
+
+      if (!checkUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      return {
+        message: 'My orders',
+        data: await this.prisma.order.findMany({
+          where: { userId: checkUser.id },
+        }),
+      };
+    } catch (error) {
+      this.Error(error);
+    }
+  }
+
+  async sendTelegramMessage(message: string) {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+    try {
+      await axios.post(url, {
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'HTML',
+      });
+    } catch (err) {
+      console.error('❌ Telegramga yuborilmadi:', err.message);
     }
   }
 }

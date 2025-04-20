@@ -8,32 +8,76 @@ export class CreateCompanyIformationDto {
   @IsNumber()
   userId: number;
 
-  @ApiProperty({ example: '1234567' })
+  @ApiProperty({ example: '1234567', required: true })
   @IsString()
   INN: string;
 
-  @ApiProperty({ example: '345353' })
+  @ApiProperty({ example: '345353', required: true })
   @IsString()
   MFO: string;
 
-  @ApiProperty({ example: '236482482534832' })
+  @ApiProperty({ example: '236482482534832', required: true })
   @IsString()
   R_S: string;
 
-  @ApiProperty({ example: 'Xalq Bank' })
+  @ApiProperty({ example: 'Xalq Bank', required: true })
   @IsString()
   BANK: string;
 
-  @ApiProperty({ example: '242342342' })
+  @ApiProperty({ example: '242342342', required: true })
   @IsString()
   OKEYD: string;
 
-  @ApiProperty({ example: 'Toshkent' })
+  @ApiProperty({ example: 'Toshkent', required: true })
   @IsString()
   ADRESS: string;
 }
 
 export class RegisterDto {
+  @ApiProperty({ example: 'Saidkamol', required: true })
+  @IsString()
+  fullName: string;
+
+  @ApiProperty({ example: 'cryptouchun06@gmail.com', required: true })
+  @IsString()
+  email: string;
+
+  @ApiProperty({ example: '+998943861006', required: true })
+  @IsString()
+  phone: string;
+
+  @ApiProperty({ example: '1', required: true })
+  @IsString()
+  regionId: number;
+
+  @ApiProperty({ example: '1234', required: true })
+  @IsString()
+  password: string;
+
+  @ApiProperty({ example: 'Saidkamol.jpg', required: true })
+  @IsString()
+  img: string;
+
+  @ApiProperty({
+    example: 'USER_FIZ, USER_YUR, VIEWER_ADMIN, ADMIN, SUPERADMIN',
+    required: true,
+  })
+  @IsString()
+  role: Role;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateCompanyIformationDto)
+  @ApiProperty({
+    type: [CreateCompanyIformationDto],
+  })
+  UserCompany: CreateCompanyIformationDto[];
+
+  @IsString()
+  status: UserStatus;
+}
+
+export class AddAdminDto {
   @ApiProperty({ example: 'Saidkamol' })
   @IsString()
   fullName: string;
@@ -59,18 +103,10 @@ export class RegisterDto {
   img: string;
 
   @ApiProperty({
-    example: "USER_FIZ, USER_YUR, VIEWER_ADMIN, ADMIN, SUPERADMIN",
+    example: 'USER_FIZ, USER_YUR, VIEWER_ADMIN, ADMIN, SUPERADMIN',
   })
   @IsString()
   role: Role;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateCompanyIformationDto)
-  @ApiProperty({
-    type: [CreateCompanyIformationDto],
-  })
-  UserCompany: CreateCompanyIformationDto[];
 
   @IsString()
   status: UserStatus;

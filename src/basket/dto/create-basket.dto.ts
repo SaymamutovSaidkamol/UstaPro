@@ -8,21 +8,21 @@ export class CreateBasketDto {
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  professionId: number;
+  professionId?: number;
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  toolId: number;
+  toolId?: number;
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  livelId: number;
+  livelId?: number;
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  count: number;
+  quantity: number;
 
-  @ApiProperty({ example: ['DAILY', 'HOURLY'] })
+  @ApiProperty({ example: 'DAILY, HOURLY' })
   @IsString()
   timeUnit: TimeUnit;
 
@@ -32,7 +32,7 @@ export class CreateBasketDto {
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  totalPrice: number;
+  price: number;
 
   @IsOptional()
   createdAt?: Date = new Date();

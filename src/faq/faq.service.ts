@@ -85,58 +85,43 @@ export class FaqService {
     }
   }
 
-  
-    async query(dto: QueryFaqDto, req: Request) {
-      try {
-        const {
-          question_uz,
-          question_ru,
-          question_en,
-          answer_uz,
-          answer_ru,
-          answer_en,
-          page = 1,
-          limit = 10,
-          sortBy = 'createdAt',
-          order = 'desc',
-        } = dto;
-  
-        const skip = (page - 1) * limit;
-  
-        return this.prisma.fAQ.findMany({
-          where: {
-            question_uz: question_uz
-              ? { contains: question_uz, mode: 'insensitive' }
-              : undefined,
-            
-            question_ru: question_ru
-              ? { contains: question_ru, mode: 'insensitive' }
-              : undefined,
-            
-            question_en: question_en
-              ? { contains: question_en, mode: 'insensitive' }
-              : undefined,
-            
-            answer_uz: answer_uz
-              ? { contains: answer_uz, mode: 'insensitive' }
-              : undefined,
-            
-            answer_ru: answer_ru
-              ? { contains: answer_ru, mode: 'insensitive' }
-              : undefined,
-            
-            answer_en: answer_en
-              ? { contains: answer_en, mode: 'insensitive' }
-              : undefined,
-          },
-          orderBy: {
-            [sortBy]: order,
-          },
-          skip,
-          take: limit,
-        });
-      } catch (error) {
-        this.Error(error);
-      }
+  async query(dto: QueryFaqDto, req: Request) {
+    try {
+      const {
+        question_uz,
+        question_ru,
+        question_en,
+        page,
+        limit,
+        sortBy = 'createdAt',
+        order = 'desc',
+      } = dto;
+
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10);
+      const take = parseInt(String(limit ?? 10), 10);
+
+      const where: any = {
+        ...(question_uz && {
+          question_uz: { contains: question_uz, mode: 'insensitive' },
+        }),
+        ...(question_ru && {
+          question_ru: { contains: question_ru, mode: 'insensitive' },
+        }),
+        ...(question_en && {
+          question_en: { contains: question_en, mode: 'insensitive' },
+        }),
+      };
+
+      return this.prisma.fAQ.findMany({
+        where,
+        orderBy: {
+          [sortBy || 'createdAt']: order || 'desc',
+        },
+        skip,
+        take,
+      });
+    } catch (error) {
+      this.Error(error);
     }
+  }
 }

@@ -13,12 +13,6 @@ export class QueryMasterDto {
     @IsString()
     phoneNumber?: string;
   
-    @ApiPropertyOptional({ example: true })
-    @IsOptional()
-    @IsBoolean()
-    @Type(() => Boolean)
-    isActive?: boolean;
-  
     @ApiPropertyOptional({ example: 1 })
     @IsOptional()
     @Type(() => Number)
@@ -35,9 +29,9 @@ export class QueryMasterDto {
     @Type(() => Number)
     limit?: number = 10;
   
-    @ApiPropertyOptional({ enum: ['fullName', 'phoneNumber', 'isActive', 'userId'], example: 'fullName' })
+    @ApiPropertyOptional({ enum: ['fullName', 'phoneNumber', 'userId'], example: 'fullName' })
     @IsOptional()
-    @IsEnum(['fullName', 'phoneNumber', 'isActive', 'userId'])
+    @IsEnum(['fullName', 'phoneNumber', 'userId'])
     sortBy?: string = 'createdAt';
   
     @ApiPropertyOptional({ enum: ['asc', 'desc'], example: 'asc' })

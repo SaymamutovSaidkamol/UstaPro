@@ -9,6 +9,7 @@ import { UpdateRegionDto } from './dto/update-region.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QueryUserDto } from 'src/users/dto/user-query.dto';
 import { QueryRegionDto } from './dto/region-query.dto';
+import { QueryBrandDto } from 'src/brand/dto/brand-query.dto';
 
 @Injectable()
 export class RegionsService {
@@ -97,41 +98,37 @@ export class RegionsService {
       };
     } catch (error) {
       this.Error(error);
-
     }
   }
 
-  async query(dto: QueryRegionDto, req: Request) {
+  async query(dto: QueryBrandDto, req: Request) {
     try {
       const {
         name_uz,
         name_ru,
         name_en,
-        page = 1,
-        limit = 10,
-        sortBy = 'createdAt',
-        order = 'desc',
+        page,
+        limit,
+        sortBy,
+        order,
       } = dto;
 
-      const skip = (page - 1) * limit;
+      const skip = ((page ?? 1) - 1) * parseInt(String(limit ?? 10), 10);
+      const take = parseInt(String(limit ?? 10), 10);
 
-      return this.prisma.brand.findMany({
-        where: {
-          name_uz: name_uz
-            ? { contains: name_uz, mode: 'insensitive' }
-            : undefined,
-          name_ru: name_ru
-            ? { contains: name_ru, mode: 'insensitive' }
-            : undefined,
-          name_en: name_en
-            ? { contains: name_en, mode: 'insensitive' }
-            : undefined,
-        },
+      const where: any = {
+        ...(name_uz && { name_uz: { contains: name_uz, mode: 'insensitive' } }),
+        ...(name_en && { name_en: { contains: name_en, mode: 'insensitive' } }),
+        ...(name_ru && { name_ru: { contains: name_ru, mode: 'insensitive' } }),
+      };
+
+      return this.prisma.regions.findMany({
+        where,
         orderBy: {
-          [sortBy]: order,
+          [sortBy || 'createdAt']: order || 'desc',
         },
         skip,
-        take: limit,
+        take,
       });
     } catch (error) {
       this.Error(error);

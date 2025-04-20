@@ -22,6 +22,7 @@ import { FaqModule } from './faq/faq.module';
 import { ShowcaseModule } from './showcase/showcase.module';
 import { PartnersModule } from './partners/partners.module';
 import { OrderModule } from './order/order.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { OrderModule } from './order/order.module';
     ShowcaseModule,
     PartnersModule,
     OrderModule,
+    CommentModule,
     
   ],
   controllers: [AppController],

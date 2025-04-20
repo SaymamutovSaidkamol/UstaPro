@@ -35,16 +35,17 @@ export class RegionsController {
     return this.regionsService.create(createRegionDto);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.regionsService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.regionsService.findOne(id);
   }
-
   
   @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @UseGuards(AuthGuard, RoleGuard)
@@ -52,7 +53,6 @@ export class RegionsController {
   update(@Param('id') id: number, @Body() updateRegionDto: UpdateRegionDto) {
     return this.regionsService.update(id, updateRegionDto);
   }
-
   
   @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, RoleGuard)

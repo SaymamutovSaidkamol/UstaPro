@@ -34,7 +34,7 @@ export class QueryToolDto {
   @IsNumber()
   quantity?: number;
 
-  @ApiPropertyOptional({ example: 'CODE_1213' })
+  @ApiPropertyOptional({ example: '#CODE_1213' })
   @IsOptional()
   @IsString()
   code?: string;

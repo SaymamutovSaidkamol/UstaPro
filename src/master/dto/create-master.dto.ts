@@ -68,7 +68,6 @@ export class CreateMasterDto {
   @IsString()
   about: string;
 
-  @ApiProperty({ example: '1' })
   @IsString()
   userId: number;
 

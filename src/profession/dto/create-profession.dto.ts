@@ -9,10 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreateProfessionLevelDto {
-  @ApiProperty({ example: 1 })
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  professionId: number;
   
   @ApiProperty({ example: 2 })
   @IsNumber()

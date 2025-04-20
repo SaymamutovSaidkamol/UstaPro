@@ -129,15 +129,23 @@ CREATE TABLE "OrderTool" (
 -- CreateTable
 CREATE TABLE "Comment" (
     "id" SERIAL NOT NULL,
-    "message_uz" TEXT NOT NULL,
-    "message_ru" TEXT NOT NULL,
-    "message_en" TEXT NOT NULL,
-    "stars" DOUBLE PRECISION NOT NULL,
+    "message" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
     "orderId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MasterReiting" (
+    "id" SERIAL NOT NULL,
+    "star" DOUBLE PRECISION NOT NULL,
+    "masterId" INTEGER NOT NULL,
+    "commentId" INTEGER NOT NULL,
+
+    CONSTRAINT "MasterReiting_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -188,9 +196,9 @@ CREATE TABLE "Tool" (
     "price" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "code" TEXT NOT NULL,
-    "brandId" INTEGER NOT NULL,
-    "powerId" INTEGER NOT NULL,
-    "sizeId" INTEGER NOT NULL,
+    "brandId" INTEGER,
+    "powerId" INTEGER,
+    "sizeId" INTEGER,
     "img" TEXT NOT NULL,
     "isAvailable" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -289,13 +297,13 @@ CREATE TABLE "ProfessionTool" (
 CREATE TABLE "Basket" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
-    "professionId" INTEGER NOT NULL,
-    "toolId" INTEGER NOT NULL,
-    "livelId" INTEGER NOT NULL,
-    "count" INTEGER NOT NULL,
+    "professionId" INTEGER,
+    "toolId" INTEGER,
+    "livelId" INTEGER,
+    "quantity" INTEGER NOT NULL DEFAULT 1,
     "timeUnit" "TimeUnit" NOT NULL,
     "workingTime" INTEGER NOT NULL,
-    "totalPrice" INTEGER NOT NULL,
+    "price" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -420,6 +428,15 @@ ALTER TABLE "OrderTool" ADD CONSTRAINT "OrderTool_toolId_fkey" FOREIGN KEY ("too
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Comment" ADD CONSTRAINT "Comment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MasterReiting" ADD CONSTRAINT "MasterReiting_masterId_fkey" FOREIGN KEY ("masterId") REFERENCES "Master"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MasterReiting" ADD CONSTRAINT "MasterReiting_commentId_fkey" FOREIGN KEY ("commentId") REFERENCES "Comment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Tool" ADD CONSTRAINT "Tool_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -456,13 +473,13 @@ ALTER TABLE "ProfessionTool" ADD CONSTRAINT "ProfessionTool_toolId_fkey" FOREIGN
 ALTER TABLE "Basket" ADD CONSTRAINT "Basket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Basket" ADD CONSTRAINT "Basket_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_professionId_fkey" FOREIGN KEY ("professionId") REFERENCES "Profession"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Basket" ADD CONSTRAINT "Basket_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "Tool"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Basket" ADD CONSTRAINT "Basket_livelId_fkey" FOREIGN KEY ("livelId") REFERENCES "Level"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Basket" ADD CONSTRAINT "Basket_livelId_fkey" FOREIGN KEY ("livelId") REFERENCES "Level"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Contact" ADD CONSTRAINT "Contact_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

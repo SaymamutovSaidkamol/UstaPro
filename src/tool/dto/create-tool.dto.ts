@@ -39,15 +39,15 @@ export class CreateToolDto {
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  brandId: number;
+  brandId?: number;
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  powerId: number;
+  powerId?: number;
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  sizeId: number;
+  sizeId?: number;
 
   @ApiProperty({ example: 'image.jpg' })
   @IsString()
