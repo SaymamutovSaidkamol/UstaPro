@@ -22,7 +22,7 @@ export class ShowcaseService {
   async create(data: CreateShowcaseDto) {
     try {
       return {
-        message: 'Faq created successfully',
+        message: 'Showcase created successfully',
         data: await this.prisma.showcase.create({ data }),
       };
     } catch (error) {
@@ -43,7 +43,7 @@ export class ShowcaseService {
       let checkFaq = await this.prisma.fAQ.findFirst({ where: { id } });
 
       if (!checkFaq) {
-        throw new NotFoundException('ShowCase not found');
+        throw new NotFoundException('Showcase not found');
       }
 
       return { data: checkFaq };
@@ -57,7 +57,7 @@ export class ShowcaseService {
       let checkFaq = await this.prisma.fAQ.findFirst({ where: { id } });
 
       if (!checkFaq) {
-        throw new NotFoundException('ShowCase not found');
+        throw new NotFoundException('Showcase not found');
       }
 
       if (
@@ -83,7 +83,7 @@ export class ShowcaseService {
       }
 
       return {
-        messafe: 'ShowCase changet successfully!',
+        messafe: 'Showcase changet successfully!',
         data: await this.prisma.showcase.update({ where: { id }, data }),
       };
     } catch (error) {
@@ -100,7 +100,7 @@ export class ShowcaseService {
       }
 
       return {
-        messafe: 'ShowCase deleted successfully!',
+        messafe: 'Showcase deleted successfully!',
         data: await this.prisma.showcase.delete({ where: { id } }),
       };
     } catch (error) {

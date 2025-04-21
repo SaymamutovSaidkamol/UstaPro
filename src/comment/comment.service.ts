@@ -8,6 +8,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
+import { QueryCommentDto } from './dto/comment-query.dto';
 
 @Injectable()
 export class CommentService {
@@ -65,9 +66,11 @@ export class CommentService {
         masterId: rating.masterId,
         commentId: newComment.id,
       }));
-      let createdRating = await this.prisma.masterReiting.createMany({ data: masterRatingData });
+      let createdRating = await this.prisma.masterReiting.createMany({
+        data: masterRatingData,
+      });
 
-      if ( createdRating.count !== masterRatingData.length) {
+      if (createdRating.count !== masterRatingData.length) {
         throw new BadRequestException('Failed to create master ratings.');
       }
 
@@ -188,6 +191,42 @@ export class CommentService {
           where: { id, userId: req['user'].userId },
         }),
       };
+    } catch (error) {
+      this.Error(error);
+    }
+  }
+
+  async query(dto: QueryCommentDto, req: Request) {
+    try {
+      const {
+        userId,
+        orderId,
+        message,
+        page = 1,
+        limit = 10,
+        sortBy = 'createdAt',
+        order = 'desc',
+      } = dto;
+
+      const skip = (page - 1) * limit;
+      const take = limit;
+
+      const where: any = {
+        ...(message && {
+          message: { contains: message, mode: 'insensitive' },
+        }),
+        ...(userId && { userId: Number(userId) }),
+        ...(orderId && { orderId: Number(orderId) }),
+      };
+
+      return this.prisma.comment.findMany({
+        where,
+        orderBy: {
+          [sortBy]: order,
+        },
+        skip,
+        take,
+      });
     } catch (error) {
       this.Error(error);
     }

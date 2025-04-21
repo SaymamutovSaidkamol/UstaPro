@@ -72,7 +72,7 @@ export class PartnersService {
       let checkFaq = await this.prisma.fAQ.findFirst({ where: { id } });
 
       if (!checkFaq) {
-        throw new NotFoundException('Faq not found');
+        throw new NotFoundException('Partners not found');
       }
 
       return {
