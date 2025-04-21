@@ -90,13 +90,13 @@ export class UsersService {
       let otp = totp.generate('secret' + data.phone);
       console.log(data.phone);
 
-      // let sendOtp = await this.mailer.sendMail(
-      //   data.email,
-      //   'New Otp',
-      //   `new Otp:  ${otp}`,
-      // );
+      let sendOtp = await this.mailer.sendMail(
+        data.email,
+        'New Otp',
+        `new Otp:  ${otp}`,
+      );
 
-      // await this.eskiz.sendSMS('Send SMS', data.phone);
+      await this.eskiz.sendSMS('Send SMS', data.phone);
       let newUser = await this.prisma.users.create({ data: { ...body } });
 
       if (data.role === 'USER_YUR') {
@@ -284,13 +284,13 @@ export class UsersService {
 
       let otp = totp.generate('secret-password' + data.phone);
 
-      // let sendOtp = await this.mailer.sendMail(
-      //   checkUser.email,
-      //   'New Otp',
-      //   `new Otp:  ${otp}`,
-      // );
+      let sendOtp = await this.mailer.sendMail(
+        checkUser.email,
+        'New Otp',
+        `new Otp:  ${otp}`,
+      );
 
-      // await this.eskiz.sendSMS('Send SMS', data.phone);    Eskizdan SMS jo'natish
+      await this.eskiz.sendSMS('Send SMS', data.phone);    
 
       return { otp };
     } catch (error) {
@@ -341,7 +341,7 @@ export class UsersService {
         throw new BadRequestException('User Not Found');
       }
 
-      // await this.eskiz.sendSMS('Send SMS', data.phone);    Eskizdan SMS jo'natish
+      await this.eskiz.sendSMS('Send SMS', phone.phone);
 
       let otp = totp.generate('secret' + phone.phone);
 
@@ -531,7 +531,7 @@ export class UsersService {
       //   `new Otp:  ${otp}`,
       // );
 
-      // await this.eskiz.sendSMS('Send SMS', data.phone);
+      await this.eskiz.sendSMS('Send SMS', data.phone);
       let newUser = await this.prisma.users.create({ data });
 
       return {
